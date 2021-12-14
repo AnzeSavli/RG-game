@@ -1,5 +1,5 @@
-import { GUI } from "../../lib/dat.gui.module.js";
-import { Application } from "../../common/engine/Application.js";
+import { GUI } from "../lib/dat.gui.module.js";
+import { Application } from "../common/engine/Application.js";
 
 import { GLTFLoader } from "./GLTFLoader.js";
 import { Renderer } from "./Renderer.js";
@@ -7,7 +7,7 @@ import { Renderer } from "./Renderer.js";
 class App extends Application {
   async start() {
     this.loader = new GLTFLoader();
-    await this.loader.load("../../common/models/monkey/untitled.gltf");
+    await this.loader.load("../common/models/monkey/untitled.gltf");
 
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
     this.camera = await this.loader.loadNode("Camera");
