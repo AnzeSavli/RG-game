@@ -13,10 +13,10 @@ export class Node {
       : vec3.fromValues(1, 1, 1);
     this.matrix = options.matrix ? mat4.clone(options.matrix) : mat4.create();
     this.velocity = [0, 0, 0];
-    this.mouseSensitivity = 0.002;
-    this.maxSpeed = 3;
+    this.mouseSensitivity = 0.2;
+    this.maxSpeed = 3000;
     this.friction = 0.2;
-    this.acceleration = 20;
+    this.acceleration = 2000;
 
     if (options.matrix) {
       this.updateTransform();
