@@ -5,11 +5,10 @@ export class Enemy extends Node {
   constructor(options, health = 100, speed = 1, waypoints) {
     super(options);
     this.health = health;
-    this.speed = 50;
+    this.speed = 300;
     this.currWaypoint = 0;
     this.wp = waypoints;
     this.translation=waypoints[0].translation;
-    this.translation[1]=0;
     this.updateMatrix();
   }
 
@@ -19,7 +18,7 @@ export class Enemy extends Node {
     vec3.sub(direction, this.translation, this.wp[this.currWaypoint+1].translation);
     vec3.normalize(direction, direction);
     direction[0] = -direction[0];
-    direction[1] = 0;
+    direction[1] = -direction[1];
     direction[2] = -direction[2];
     const velocity = [0, 0, 0];
     let acc = vec3.create();
@@ -27,7 +26,7 @@ export class Enemy extends Node {
     vec3.scaleAndAdd(velocity, velocity, acc, dt*this.speed);
     vec3.scaleAndAdd(this.translation, this.translation, velocity, dt)
     this.updateMatrix();
-    if(vec3.distance(this.translation, this.wp[this.currWaypoint+1].translation)<=0.01){
+    if(vec3.distance(this.translation, this.wp[this.currWaypoint+1].translation)<=0.05 && this.currWaypoint < this.wp.length - 2){
       this.currWaypoint++;
     }
   }

@@ -11,7 +11,7 @@ class App extends Application {
 
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
     this.enemies = [
-      await this.loader.loadEnemy("Sphere"),
+      await this.loader.loadEnemy("Sphere.002"),
       //await this.loader.loadEnemy("Sphere.001"),
       //await this.loader.loadEnemy("Sphere.002"),
     ];
