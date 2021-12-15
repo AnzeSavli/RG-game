@@ -68,7 +68,6 @@ export class Camera extends Node{
   }
 
   enable() {
-    console.log(this)
     document.addEventListener("mousemove", this.mousemoveHandler);
     document.addEventListener("keydown", this.keydownHandler);
     document.addEventListener("keyup", this.keyupHandler);
