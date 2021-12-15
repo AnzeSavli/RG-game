@@ -16,7 +16,7 @@ export class Node {
     this.mouseSensitivity = 0.2;
     this.maxSpeed = 3000;
     this.friction = 0.2;
-    this.acceleration = 2000;
+    this.acceleration = 2;
 
     if (options.matrix) {
       this.updateTransform();

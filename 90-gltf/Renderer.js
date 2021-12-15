@@ -4,6 +4,8 @@ import { WebGL } from "../common/engine/WebGL.js";
 
 import { shaders } from "./shaders.js";
 
+import { Enemy } from "./Enemy.js";
+
 // This class prepares all assets for use with WebGL
 // and takes care of rendering.
 
@@ -160,6 +162,18 @@ export class Renderer {
   prepareScene(scene) {
     for (const node of scene.nodes) {
       this.prepareNode(node);
+    }
+  }
+
+  prepareNodeArray(nodes) {
+    for (const node of nodes) {
+      this.prepareNode(node);
+    }
+  }
+
+  renderNodeArray(nodes, camera) {
+    for (const node of nodes) {
+      this.renderNode(node, this.getViewProjectionMatrix(camera));
     }
   }
 
