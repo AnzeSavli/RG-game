@@ -5,18 +5,34 @@ export class Enemy extends Node {
   constructor(options, health = 100, speed = 1, waypoints) {
     super(options);
     this.health = health;
-    this.speed = speed;
+    this.speed = 50;
     this.currWaypoint = 0;
     this.wp = waypoints;
-    this.setSpawnPosition();
+    this.translation=waypoints[0].translation;
+    this.translation[1]=0;
+    this.updateMatrix();
   }
 
-  setSpawnPosition() {
-    this.matrix[12] = this.wp[this.currWaypoint].matrix[12];
-    this.matrix[14] = this.wp[this.currWaypoint].matrix[14];
+
+  moveEnemy(dt){
+    let direction = vec3.create();
+    vec3.sub(direction, this.translation, this.wp[this.currWaypoint+1].translation);
+    vec3.normalize(direction, direction);
+    direction[0] = -direction[0];
+    direction[1] = 0;
+    direction[2] = -direction[2];
+    const velocity = [0, 0, 0];
+    let acc = vec3.create();
+    vec3.add(acc, acc, direction);
+    vec3.scaleAndAdd(velocity, velocity, acc, dt*this.speed);
+    vec3.scaleAndAdd(this.translation, this.translation, velocity, dt)
+    this.updateMatrix();
+    if(vec3.distance(this.translation, this.wp[this.currWaypoint+1].translation)<=0.01){
+      this.currWaypoint++;
+    }
   }
 
-  moveEnemy(dt) {
+  moveEnemy1(dt) {
     let acc = vec3.create();
 
 

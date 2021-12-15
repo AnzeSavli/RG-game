@@ -15,6 +15,7 @@ class App extends Application {
       //await this.loader.loadEnemy("Sphere.001"),
       //await this.loader.loadEnemy("Sphere.002"),
     ];
+    console.log(this.enemies)
     this.camera = await this.loader.loadNode("Camera");
 
     if (!this.scene || !this.camera) {
@@ -71,6 +72,7 @@ class App extends Application {
 
     if (this.enemies) {
       for (let i = 0; i < this.enemies.length; i++) {
+        this.enemies[i].updateMatrix();
         this.enemies[i].moveEnemy(dt);
         // this.enemies[i].updateMatrix();
         // this.enemies[i].updateTransform();
