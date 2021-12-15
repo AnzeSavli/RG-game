@@ -6,8 +6,7 @@ const vec3 = glMatrix.vec3;
 export class Camera extends Node{
   constructor(options = {}) {
     super(options);
-    this.options=options;
-    this.projection=mat4.create();
+    this.projection = mat4.create();
     Utils.init(this, this.constructor.defaults, options);
     this.updateProjection();
     this.mousemoveHandler = this.mousemoveHandler.bind(this);
@@ -28,7 +27,6 @@ export class Camera extends Node{
 
   update(dt) {
     const c = this;
-        //console.log(c);
         const forward = vec3.set(vec3.create(),
             -Math.sin(c.rotation[1]), 0, -Math.cos(c.rotation[1]));
         const right = vec3.set(vec3.create(),
