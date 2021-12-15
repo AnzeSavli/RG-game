@@ -25,8 +25,6 @@ class App extends Application {
       throw new Error("Camera node does not contain a camera reference");
     }
 
-    console.log(this);
-    console.log(this.scene);
 
     this.renderer = new Renderer(this.gl);
     this.renderer.prepareScene(this.scene);
@@ -64,7 +62,7 @@ class App extends Application {
 
     if (this.camera) {
       this.camera.updateMatrix();
-      this.camera.updateMOVE(dt);
+      this.camera.update(dt);
     }
 
     if (this.physics) {

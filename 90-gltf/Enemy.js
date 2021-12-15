@@ -16,30 +16,9 @@ export class Enemy extends Node {
     this.matrix[14] = this.wp[this.currWaypoint].matrix[14];
   }
 
-  Spin() {
-    this.rotation[0] -= 1 * 0.002;
-    this.rotation[1] -= 1 * 0.002;
-
-    const pi = Math.PI;
-    const twopi = pi * 2;
-    const halfpi = pi / 2;
-
-    if (this.rotation[0] > halfpi) {
-      this.rotation[0] = halfpi;
-    }
-    if (this.rotation[0] < -halfpi) {
-      this.rotation[0] = -halfpi;
-    }
-
-    this.rotation[1] = ((this.rotation[1] % twopi) + twopi) % twopi;
-  }
-
   moveEnemy(dt) {
-    this.Spin();
-
     let acc = vec3.create();
 
-    console.log(this.matrix);
 
     let x = this.matrix[12] - this.wp[this.currWaypoint + 1].matrix[12];
     let y = this.matrix[14] - this.wp[this.currWaypoint + 1].matrix[14];

@@ -10,7 +10,7 @@ import { OrthographicCamera } from "./OrthographicCamera.js";
 import { Node } from "./Node.js";
 import { Enemy } from "./Enemy.js";
 import { Scene } from "./Scene.js";
-
+import {Camera} from "./Camera.js";
 // This class loads all GLTF resources and instantiates
 // the corresponding classes. Keep in mind that it loads
 // the resources in series (care to optimize?).
@@ -309,7 +309,10 @@ export class GLTFLoader {
       options.mesh = await this.loadMesh(gltfSpec.mesh);
     }
 
-    const node = new Node(options);
+    let node = new Node(options);
+    if(gltfSpec.camera!==undefined){
+      node = new Camera(options);
+    }
     this.cache.set(gltfSpec, node);
     return node;
   }

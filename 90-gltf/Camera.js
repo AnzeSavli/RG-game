@@ -1,13 +1,19 @@
-import { mat4 } from "../lib/gl-matrix-module.js";
+import { Utils } from "./Utils.js";
+import { Node } from "./Node.js";
+const mat4 = glMatrix.mat4;
+const vec3 = glMatrix.vec3;
 
-export class Camera {
+export class Camera extends Node{
   constructor(options = {}) {
-    this.node = options.node || null;
-    this.matrix = options.matrix ? mat4.clone(options.matrix) : mat4.create();
-
-    // this.keydownHandler = this.keydownHandler.bind(this);
-    // this.keyupHandler = this.keyupHandler.bind(this);
-    // this.keys = {};
+    super(options);
+    this.options=options;
+    this.projection=mat4.create();
+    Utils.init(this, this.constructor.defaults, options);
+    this.updateProjection();
+    this.mousemoveHandler = this.mousemoveHandler.bind(this);
+    this.keydownHandler = this.keydownHandler.bind(this);
+    this.keyupHandler = this.keyupHandler.bind(this);
+    this.keys = {};
   }
 
   updateProjection() {
@@ -22,56 +28,50 @@ export class Camera {
 
   update(dt) {
     const c = this;
+        //console.log(c);
+        const forward = vec3.set(vec3.create(),
+            -Math.sin(c.rotation[1]), 0, -Math.cos(c.rotation[1]));
+        const right = vec3.set(vec3.create(),
+            Math.cos(c.rotation[1]), 0, -Math.sin(c.rotation[1]));
+        
+        // 1: add movement acceleration
+        let acc = vec3.create();
+        if (this.keys['KeyW']) {
+            vec3.add(acc, acc, forward);
+        }
+        if (this.keys['KeyS']) {
+            vec3.sub(acc, acc, forward);
+        }
+        if (this.keys['KeyD']) {
+            vec3.add(acc, acc, right);
+        }
+        if (this.keys['KeyA']) {
+            vec3.sub(acc, acc, right);
+        }
 
-    const forward = vec3.set(
-      vec3.create(),
-      -Math.sin(c.rotation[1]),
-      0,
-      -Math.cos(c.rotation[1])
-    );
-    const right = vec3.set(
-      vec3.create(),
-      Math.cos(c.rotation[1]),
-      0,
-      -Math.sin(c.rotation[1])
-    );
+        // 2: update velocity
+        vec3.scaleAndAdd(c.velocity, c.velocity, acc, dt * c.acceleration);
 
-    // 1: add movement acceleration
-    let acc = vec3.create();
-    if (this.keys["KeyW"]) {
-      vec3.add(acc, acc, forward);
-    }
-    if (this.keys["KeyS"]) {
-      vec3.sub(acc, acc, forward);
-    }
-    if (this.keys["KeyD"]) {
-      vec3.add(acc, acc, right);
-    }
-    if (this.keys["KeyA"]) {
-      vec3.sub(acc, acc, right);
-    }
+        // 3: if no movement, apply friction
+        if (!this.keys['KeyW'] &&
+            !this.keys['KeyS'] &&
+            !this.keys['KeyD'] &&
+            !this.keys['KeyA'])
+        {
+            vec3.scale(c.velocity, c.velocity, 1 - c.friction);
+        }
 
-    // 2: update velocity
-    vec3.scaleAndAdd(c.velocity, c.velocity, acc, dt * c.acceleration);
+        // 4: limit speed
+        const len = vec3.len(c.velocity);
+        if (len > c.maxSpeed) {
+            vec3.scale(c.velocity, c.velocity, c.maxSpeed / len);
+        }
 
-    // 3: if no movement, apply friction
-    if (
-      !this.keys["KeyW"] &&
-      !this.keys["KeyS"] &&
-      !this.keys["KeyD"] &&
-      !this.keys["KeyA"]
-    ) {
-      vec3.scale(c.velocity, c.velocity, 1 - c.friction);
-    }
-
-    // 4: limit speed
-    const len = vec3.len(c.velocity);
-    if (len > c.maxSpeed) {
-      vec3.scale(c.velocity, c.velocity, c.maxSpeed / len);
-    }
+        vec3.scaleAndAdd(c.translation, c.translation, c.velocity, dt);
   }
 
   enable() {
+    console.log(this)
     document.addEventListener("mousemove", this.mousemoveHandler);
     document.addEventListener("keydown", this.keydownHandler);
     document.addEventListener("keyup", this.keyupHandler);
@@ -88,7 +88,6 @@ export class Camera {
   }
 
   mousemoveHandler(e) {
-    console.log(this);
 
     const dx = e.movementX;
     const dy = e.movementY;
@@ -108,7 +107,7 @@ export class Camera {
       c.rotation[0] = -halfpi;
     }
 
-    c.rotation[1] = ((c.rotation[1] % twopi) + twopi) % twopi;
+    c.rotation[1] = ((c.rotation[1] % twopi)) % twopi;
   }
 
   keydownHandler(e) {
