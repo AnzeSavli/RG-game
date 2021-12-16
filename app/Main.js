@@ -7,7 +7,7 @@ import { Renderer } from "./Renderer.js";
 class App extends Application {
   async start() {
     this.loader = new GLTFLoader();
-    await this.loader.load("../common/models/monkey/untitled.gltf");
+    await this.loader.load("../common/models/textures/untitled.gltf");
 
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
     this.enemies = [
@@ -15,7 +15,7 @@ class App extends Application {
       //await this.loader.loadEnemy("Sphere.001"),
       //await this.loader.loadEnemy("Sphere.002"),
     ];
-    console.log(this.enemies)
+    console.log(this.enemies);
     this.camera = await this.loader.loadNode("Camera");
 
     if (!this.scene || !this.camera) {
@@ -25,7 +25,6 @@ class App extends Application {
     if (!this.camera.camera) {
       throw new Error("Camera node does not contain a camera reference");
     }
-
 
     this.renderer = new Renderer(this.gl);
     this.renderer.prepareScene(this.scene);
