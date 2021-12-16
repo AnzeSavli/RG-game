@@ -11,11 +11,12 @@ class App extends Application {
 
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
     this.enemies = [
-      await this.loader.loadEnemy("Sphere.002"),
+      await this.loader.loadEnemy("Sphere"),
       //await this.loader.loadEnemy("Sphere.001"),
       //await this.loader.loadEnemy("Sphere.002"),
     ];
-    console.log(this.enemies);
+    this.turrets = [await this.loader.loadTurret("Cylinder")];
+
     this.camera = await this.loader.loadNode("Camera");
 
     if (!this.scene || !this.camera) {
@@ -29,6 +30,7 @@ class App extends Application {
     this.renderer = new Renderer(this.gl);
     this.renderer.prepareScene(this.scene);
     this.renderer.prepareNodeArray(this.enemies);
+    this.renderer.prepareNodeArray(this.turrets);
 
     this.resize();
 
@@ -71,11 +73,16 @@ class App extends Application {
 
     if (this.enemies) {
       for (let i = 0; i < this.enemies.length; i++) {
+        this.enemies[i].rotate(dt);
         this.enemies[i].updateMatrix();
         this.enemies[i].moveEnemy(dt);
         // this.enemies[i].updateMatrix();
         // this.enemies[i].updateTransform();
       }
+    }
+
+    if (this.turrets) {
+      for (let i = 0; i < this.turrets.length; i++) {}
     }
   }
 
@@ -83,6 +90,7 @@ class App extends Application {
     if (this.renderer) {
       this.renderer.render(this.scene, this.camera);
       this.renderer.renderNodeArray(this.enemies, this.camera);
+      this.renderer.renderNodeArray(this.turrets, this.camera);
     }
   }
 

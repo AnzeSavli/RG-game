@@ -10,7 +10,8 @@ import { OrthographicCamera } from "./OrthographicCamera.js";
 import { Node } from "./Node.js";
 import { Enemy } from "./Enemy.js";
 import { Scene } from "./Scene.js";
-import {Camera} from "./Camera.js";
+import { Camera } from "./Camera.js";
+import { Turret } from "./Turret.js";
 // This class loads all GLTF resources and instantiates
 // the corresponding classes. Keep in mind that it loads
 // the resources in series (care to optimize?).
@@ -310,7 +311,7 @@ export class GLTFLoader {
     }
 
     let node = new Node(options);
-    if(gltfSpec.camera!==undefined){
+    if (gltfSpec.camera !== undefined) {
       node = new Camera(options);
     }
     this.cache.set(gltfSpec, node);
@@ -346,7 +347,32 @@ export class GLTFLoader {
       options.mesh = await this.loadMesh(gltfSpec.mesh);
     }
 
-    const node = new Enemy(options, 200, 1, wp);
+    const node = new Enemy(options, 200, 200, wp);
+    this.cache.set(gltfSpec, node);
+    return node;
+  }
+
+  async loadTurret(nameOrIndex) {
+    const gltfSpec = this.findByNameOrIndex(this.gltf.nodes, nameOrIndex);
+    if (this.cache.has(gltfSpec)) {
+      return this.cache.get(gltfSpec);
+    }
+
+    let options = { ...gltfSpec, children: [] };
+    if (gltfSpec.children) {
+      for (const nodeIndex of gltfSpec.children) {
+        const node = await this.loadNode(nodeIndex);
+        options.children.push(node);
+      }
+    }
+    if (gltfSpec.camera !== undefined) {
+      options.camera = await this.loadCamera(gltfSpec.camera);
+    }
+    if (gltfSpec.mesh !== undefined) {
+      options.mesh = await this.loadMesh(gltfSpec.mesh);
+    }
+
+    let node = new Turret(options);
     this.cache.set(gltfSpec, node);
     return node;
   }
