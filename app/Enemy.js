@@ -10,41 +10,14 @@ export class Enemy extends Node {
     this.wp = waypoints;
     this.translation = waypoints[0].translation;
     this.updateMatrix();
-    this.r0 = 1;
-    this.r1 = 1;
+    this.rotateSpeedX = 1;
+    this.rotateSpeedY = 1;
   }
 
   rotate(dt) {
-    const pi = Math.PI;
-    const twopi = pi * 2;
-    const halfpi = pi / 2;
-
-    const c = this;
-
-    c.rotation[0] -= dt * 0.1 * this.r0;
-    c.rotation[1] -= dt * 0.1 * this.r1;
-
-    if (c.rotation[0] < -0.5 || c.rotation[0] > 0.5) {
-      this.r0 *= -1;
-    }
-    if (c.rotation[1] < -0.1 || c.rotation[1] > 0.1) {
-      this.r1 *= -1;
-    }
-
-    /*     if (c.rotation[0] > halfpi) {
-      c.rotation[0] = 0;
-    }
-    if (c.rotation[0] < -halfpi) {
-      c.rotation[0] = -0;
-    }
-
-    if (c.rotation[1] > halfpi) {
-      c.rotation[1] = 0;
-    }
-    if (c.rotation[1] < -halfpi) {
-      c.rotation[1] = -0;
-    } */
-    c.rotation[1] = (c.rotation[1] % twopi) % twopi;
+    quat.rotateY(this.rotation, this.rotation, this.rotateSpeedY * dt);
+    quat.rotateX(this.rotation, this.rotation, this.rotateSpeedX * dt);
+    this.updateMatrix();
   }
 
   moveEnemy(dt) {
@@ -73,34 +46,5 @@ export class Enemy extends Node {
     ) {
       this.currWaypoint++;
     }
-  }
-
-  moveEnemy1(dt) {
-    let acc = vec3.create();
-
-    let x = this.matrix[12] - this.wp[this.currWaypoint + 1].matrix[12];
-    let y = this.matrix[14] - this.wp[this.currWaypoint + 1].matrix[14];
-
-    if (y < 0 && Math.abs(y) > 0.1) {
-      this.matrix[14] += dt * this.speed;
-    }
-    if (y > 0 && Math.abs(y) > 0.1) {
-      this.matrix[14] -= dt * this.speed;
-    }
-    if (x < 0 && Math.abs(x) > 0.1) {
-      this.matrix[12] += dt * this.speed;
-    }
-    if (x > 0 && Math.abs(x) > 0.1) {
-      this.matrix[12] -= dt * this.speed;
-    }
-    if (
-      Math.abs(x) < 0.1 &&
-      Math.abs(y) < 0.1 &&
-      this.currWaypoint < this.wp.length - 2
-    ) {
-      this.currWaypoint++;
-    }
-
-    vec3.scaleAndAdd(this.velocity, this.velocity, acc, dt * this.speed);
   }
 }

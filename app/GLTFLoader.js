@@ -320,7 +320,7 @@ export class GLTFLoader {
 
   async loadWayPoints(nameOrIndex, waypoints) {
     let wp = [];
-    for (let i = 1; i <= waypoints; i++) {
+    for (let i = 0; i < waypoints; i++) {
       wp.push(await this.loadNode(nameOrIndex + i));
     }
     return wp;
