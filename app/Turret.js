@@ -7,7 +7,7 @@ export class Turret extends Node {
   }
 
   findClosestEnemy(enemies) {
-    let razdalja = 99999;
+    let razdalja = 999999;
     let najblizji_i = -1;
     let tmp_razdalja;
 
@@ -26,41 +26,28 @@ export class Turret extends Node {
   rotateToEnemy(enemies) {
     const enemy = this.findClosestEnemy(enemies);
 
-    const TurretRotation = [
-      -Math.sin(this.rotation[1]),
-      0,
-      -Math.cos(this.rotation[1]),
-    ];
-    const EnemyRotation = vec3.sub(
-      vec3.create(),
-      enemy.translation,
-      this.translation
-    );
+    if (!enemy) return;
 
-    EnemyRotation[1] = 0;
-    vec3.normalize(EnemyRotation, EnemyRotation);
+    const TurretDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
 
-    const kot = vec3.angle(TurretRotation, EnemyRotation);
+    const EnemyDir = vec3.sub(vec3.create(), this.translation, enemy.translation);
 
-    this.rotation[1] += kot;
+    EnemyDir[1] = 0;
+    vec3.normalize(EnemyDir, EnemyDir);
 
-    const NewTurretRotation = [
-      -Math.sin(this.rotation[1]),
-      0,
-      -Math.cos(this.rotation[1]),
-    ];
+    const kot = vec3.angle(TurretDir, EnemyDir);
 
-    const updatedKot = vec3.angle(NewTurretRotation, EnemyRotation);
+    this.rotation[1] += kot - Math.PI;
 
-    if (updatedKot > kot) {
-      this.rotation[1] -= 2 * kot;
+    const newDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
+
+    const novKot = vec3.angle(newDir, EnemyDir);
+
+    if (0.0001 < kot - novKot) {
+      this.rotation[1] -= 2 * (kot - Math.PI);
     }
 
-    this.rotation[1] =
-      ((this.rotation[1] % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-
-    const koti = this.rotation.map((x) => (x * 180) / Math.PI);
-    quat.fromEuler(this.rotation, ...koti);
+    quat.fromEuler(this.rotation, (this.rotation[0] * 180) / Math.PI, (this.rotation[1] * 180) / Math.PI, (this.rotation[2] * 180) / Math.PI);
 
     this.updateMatrix();
   }

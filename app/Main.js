@@ -15,11 +15,7 @@ class App extends Application {
       //await this.loader.loadEnemy("enemy1"),
       //await this.loader.loadEnemy("enemy2"),
     ];
-    this.turrets = [
-      await this.loader.loadTurret("turret0"),
-      //await this.loader.loadTurret("turret1"),
-      //await this.loader.loadTurret("turret2"),
-    ];
+    this.turrets = [await this.loader.loadTurret("turret0"), await this.loader.loadTurret("turret1"), await this.loader.loadTurret("turret2")];
 
     this.camera = await this.loader.loadNode("Camera");
 
@@ -39,10 +35,7 @@ class App extends Application {
     this.resize();
 
     this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
-    document.addEventListener(
-      "pointerlockchange",
-      this.pointerlockchangeHandler
-    );
+    document.addEventListener("pointerlockchange", this.pointerlockchangeHandler);
   }
 
   enableCamera() {
