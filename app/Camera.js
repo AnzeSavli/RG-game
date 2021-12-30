@@ -1,8 +1,8 @@
-import { mat4,vec3 } from "../lib/gl-matrix-module.js";
+import { mat4, vec3 } from "../lib/gl-matrix-module.js";
 import { Utils } from "./Utils.js";
 import { Node } from "./Node.js";
 
-export class Camera extends Node{
+export class Camera extends Node {
   constructor(options = {}) {
     super(options);
     this.projection = mat4.create();
@@ -26,45 +26,54 @@ export class Camera extends Node{
 
   update(dt) {
     const c = this;
-        const forward = vec3.set(vec3.create(),
-            -Math.sin(c.rotation[1]), 0, -Math.cos(c.rotation[1]));
-        const right = vec3.set(vec3.create(),
-            Math.cos(c.rotation[1]), 0, -Math.sin(c.rotation[1]));
-        
-        // 1: add movement acceleration
-        let acc = vec3.create();
-        if (this.keys['KeyW']) {
-            vec3.add(acc, acc, forward);
-        }
-        if (this.keys['KeyS']) {
-            vec3.sub(acc, acc, forward);
-        }
-        if (this.keys['KeyD']) {
-            vec3.add(acc, acc, right);
-        }
-        if (this.keys['KeyA']) {
-            vec3.sub(acc, acc, right);
-        }
+    const forward = vec3.set(
+      vec3.create(),
+      -Math.sin(c.rotation[1]),
+      0,
+      -Math.cos(c.rotation[1])
+    );
+    const right = vec3.set(
+      vec3.create(),
+      Math.cos(c.rotation[1]),
+      0,
+      -Math.sin(c.rotation[1])
+    );
 
-        // 2: update velocity
-        vec3.scaleAndAdd(c.velocity, c.velocity, acc, dt * c.acceleration);
+    // 1: add movement acceleration
+    let acc = vec3.create();
+    if (this.keys["KeyW"]) {
+      vec3.add(acc, acc, forward);
+    }
+    if (this.keys["KeyS"]) {
+      vec3.sub(acc, acc, forward);
+    }
+    if (this.keys["KeyD"]) {
+      vec3.add(acc, acc, right);
+    }
+    if (this.keys["KeyA"]) {
+      vec3.sub(acc, acc, right);
+    }
 
-        // 3: if no movement, apply friction
-        if (!this.keys['KeyW'] &&
-            !this.keys['KeyS'] &&
-            !this.keys['KeyD'] &&
-            !this.keys['KeyA'])
-        {
-            vec3.scale(c.velocity, c.velocity, 1 - c.friction);
-        }
+    // 2: update velocity
+    vec3.scaleAndAdd(c.velocity, c.velocity, acc, dt * c.acceleration);
 
-        // 4: limit speed
-        const len = vec3.len(c.velocity);
-        if (len > c.maxSpeed) {
-            vec3.scale(c.velocity, c.velocity, c.maxSpeed / len);
-        }
+    // 3: if no movement, apply friction
+    if (
+      !this.keys["KeyW"] &&
+      !this.keys["KeyS"] &&
+      !this.keys["KeyD"] &&
+      !this.keys["KeyA"]
+    ) {
+      vec3.scale(c.velocity, c.velocity, 1 - c.friction);
+    }
 
-        vec3.scaleAndAdd(c.translation, c.translation, c.velocity, dt);
+    // 4: limit speed
+    const len = vec3.len(c.velocity);
+    if (len > c.maxSpeed) {
+      vec3.scale(c.velocity, c.velocity, c.maxSpeed / len);
+    }
+
+    vec3.scaleAndAdd(c.translation, c.translation, c.velocity, dt);
   }
 
   enable() {
@@ -84,7 +93,6 @@ export class Camera extends Node{
   }
 
   mousemoveHandler(e) {
-
     const dx = e.movementX;
     const dy = e.movementY;
     const c = this;
@@ -103,7 +111,7 @@ export class Camera extends Node{
       c.rotation[0] = -halfpi;
     }
 
-    c.rotation[1] = ((c.rotation[1] % twopi)) % twopi;
+    c.rotation[1] = (c.rotation[1] % twopi) % twopi;
   }
 
   keydownHandler(e) {
@@ -114,3 +122,15 @@ export class Camera extends Node{
     this.keys[e.code] = false;
   }
 }
+
+Camera.defaults = {
+  aspect: 1,
+  fov: 1.5,
+  near: 0.01,
+  far: 100,
+  velocity: [0, 0, 0],
+  mouseSensitivity: 0.002,
+  maxSpeed: 3,
+  friction: 0.2,
+  acceleration: 20,
+};

@@ -1,9 +1,12 @@
 import { Node } from "./Node.js";
 import { vec3, mat4, quat } from "../lib/gl-matrix-module.js";
+import { Bullet } from "./Bullet.js";
 
 export class Turret extends Node {
   constructor(options) {
     super(options);
+    this.options = options;
+    this.bullets = new Array();
   }
 
   findClosestEnemy(enemies) {
@@ -28,9 +31,17 @@ export class Turret extends Node {
 
     if (!enemy) return;
 
-    const TurretDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
+    const TurretDir = [
+      -Math.sin(this.rotation[1]),
+      0,
+      -Math.cos(this.rotation[1]),
+    ];
 
-    const EnemyDir = vec3.sub(vec3.create(), this.translation, enemy.translation);
+    const EnemyDir = vec3.sub(
+      vec3.create(),
+      this.translation,
+      enemy.translation
+    );
 
     EnemyDir[1] = 0;
     vec3.normalize(EnemyDir, EnemyDir);
@@ -39,7 +50,11 @@ export class Turret extends Node {
 
     this.rotation[1] += kot - Math.PI;
 
-    const newDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
+    const newDir = [
+      -Math.sin(this.rotation[1]),
+      0,
+      -Math.cos(this.rotation[1]),
+    ];
 
     const novKot = vec3.angle(newDir, EnemyDir);
 
@@ -47,8 +62,19 @@ export class Turret extends Node {
       this.rotation[1] -= 2 * (kot - Math.PI);
     }
 
-    quat.fromEuler(this.rotation, (this.rotation[0] * 180) / Math.PI, (this.rotation[1] * 180) / Math.PI, (this.rotation[2] * 180) / Math.PI);
+    quat.fromEuler(
+      this.rotation,
+      (this.rotation[0] * 180) / Math.PI,
+      (this.rotation[1] * 180) / Math.PI,
+      (this.rotation[2] * 180) / Math.PI
+    );
 
     this.updateMatrix();
+  }
+
+  createBullet(enemies) {
+    const enemy = this.findClosestEnemy(enemies);
+
+    this.bullets.push(new Bullet(this.options, enemy));
   }
 }
