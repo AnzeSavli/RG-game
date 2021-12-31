@@ -2,8 +2,13 @@ import { Node } from "./Node.js";
 import { vec3, mat4, quat } from "../lib/gl-matrix-module.js";
 
 export class Turret extends Node {
-  constructor(options) {
+  constructor(options, id, turret, loc) {
     super(options);
+    this.id = id;
+    console.log(turret);
+    this.scale = turret[loc].scale;
+    this.mesh = turret[loc].mesh;
+    this.translation = options;
   }
 
   findClosestEnemy(enemies) {

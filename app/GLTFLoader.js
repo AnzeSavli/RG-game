@@ -174,17 +174,12 @@ export class GLTFLoader {
     const pbr = gltfSpec.pbrMetallicRoughness;
     if (pbr !== undefined) {
       if (pbr.baseColorTexture !== undefined) {
-        options.baseColorTexture = await this.loadTexture(
-          pbr.baseColorTexture.index
-        );
+        options.baseColorTexture = await this.loadTexture(pbr.baseColorTexture.index);
         options.baseColorTexCoord = pbr.baseColorTexture.texCoord;
       }
       if (pbr.metallicRoughnessTexture !== undefined) {
-        options.metallicRoughnessTexture = await this.loadTexture(
-          pbr.metallicRoughnessTexture.index
-        );
-        options.metallicRoughnessTexCoord =
-          pbr.metallicRoughnessTexture.texCoord;
+        options.metallicRoughnessTexture = await this.loadTexture(pbr.metallicRoughnessTexture.index);
+        options.metallicRoughnessTexCoord = pbr.metallicRoughnessTexture.texCoord;
       }
       options.baseColorFactor = pbr.baseColorFactor;
       options.metallicFactor = pbr.metallicFactor;
@@ -192,25 +187,19 @@ export class GLTFLoader {
     }
 
     if (gltfSpec.normalTexture !== undefined) {
-      options.normalTexture = await this.loadTexture(
-        gltfSpec.normalTexture.index
-      );
+      options.normalTexture = await this.loadTexture(gltfSpec.normalTexture.index);
       options.normalTexCoord = gltfSpec.normalTexture.texCoord;
       options.normalFactor = gltfSpec.normalTexture.scale;
     }
 
     if (gltfSpec.occlusionTexture !== undefined) {
-      options.occlusionTexture = await this.loadTexture(
-        gltfSpec.occlusionTexture.index
-      );
+      options.occlusionTexture = await this.loadTexture(gltfSpec.occlusionTexture.index);
       options.occlusionTexCoord = gltfSpec.occlusionTexture.texCoord;
       options.occlusionFactor = gltfSpec.occlusionTexture.strength;
     }
 
     if (gltfSpec.emissiveTexture !== undefined) {
-      options.emissiveTexture = await this.loadTexture(
-        gltfSpec.emissiveTexture.index
-      );
+      options.emissiveTexture = await this.loadTexture(gltfSpec.emissiveTexture.index);
       options.emissiveTexCoord = gltfSpec.emissiveTexture.texCoord;
       options.emissiveFactor = gltfSpec.emissiveFactor;
     }
@@ -235,19 +224,13 @@ export class GLTFLoader {
       let primitiveOptions = {};
       primitiveOptions.attributes = {};
       for (const name in primitiveSpec.attributes) {
-        primitiveOptions.attributes[name] = await this.loadAccessor(
-          primitiveSpec.attributes[name]
-        );
+        primitiveOptions.attributes[name] = await this.loadAccessor(primitiveSpec.attributes[name]);
       }
       if (primitiveSpec.indices !== undefined) {
-        primitiveOptions.indices = await this.loadAccessor(
-          primitiveSpec.indices
-        );
+        primitiveOptions.indices = await this.loadAccessor(primitiveSpec.indices);
       }
       if (primitiveSpec.material !== undefined) {
-        primitiveOptions.material = await this.loadMaterial(
-          primitiveSpec.material
-        );
+        primitiveOptions.material = await this.loadMaterial(primitiveSpec.material);
       }
       primitiveOptions.mode = primitiveSpec.mode;
       const primitive = new Primitive(primitiveOptions);
@@ -347,7 +330,7 @@ export class GLTFLoader {
       options.mesh = await this.loadMesh(gltfSpec.mesh);
     }
 
-    const node = new Enemy(options, 200, 200, wp);
+    const node = await this.loadNode(nameOrIndex);
     this.cache.set(gltfSpec, node);
     return node;
   }
@@ -372,7 +355,7 @@ export class GLTFLoader {
       options.mesh = await this.loadMesh(gltfSpec.mesh);
     }
 
-    let node = new Turret(options);
+    let node = await this.loadNode(nameOrIndex);
     this.cache.set(gltfSpec, node);
     return node;
   }

@@ -2,14 +2,21 @@ import { Node } from "./Node.js";
 import { vec3, mat4, quat } from "../lib/gl-matrix-module.js";
 
 export class Enemy extends Node {
-  constructor(options, health = 100, speed = 200, waypoints) {
+  constructor(options, id, waypoints, enemies, loc) {
     super(options);
-    this.health = health;
-    this.speed = speed;
+    this.id = id;
+    this.loc = loc;
+    this.health = 100;
+    this.speed = 200;
     this.currWaypoint = 0;
     this.wp = waypoints;
-    this.translation = waypoints[0].translation;
-    this.updateMatrix();
+    this.enemy = enemies;
+    this.scale = enemies[loc].scale;
+    this.mesh = enemies[loc].mesh;
+    if (loc == 2) this.health = 300;
+    if (loc == 1) this.health = 200;
+    if (loc == 0) this.health = 100;
+    this.translation = Object.create(this.wp[this.currWaypoint].translation);
     this.rotateSpeedX = 1;
     this.rotateSpeedY = 1;
   }
@@ -35,6 +42,19 @@ export class Enemy extends Node {
     this.updateMatrix();
     if (vec3.distance(this.translation, this.wp[this.currWaypoint + 1].translation) <= 0.05 && this.currWaypoint < this.wp.length - 2) {
       this.currWaypoint++;
+    }
+  }
+  enemyLvlDown() {
+    if (this.loc == 2) {
+      this.scale = this.enemy[this.loc - 1].scale;
+      this.mesh = this.enemy[this.loc - 1].mesh;
+      this.health -= 100;
+      this.loc--;
+    } else if (this.loc == 1) {
+      this.scale = this.enemy[this.loc - 1].scale;
+      this.mesh = this.enemy[this.loc - 1].mesh;
+      this.health -= 100;
+      this.loc--;
     }
   }
 }
