@@ -1,5 +1,6 @@
 import { GUI } from "../lib/dat.gui.module.js";
 import { Application } from "../common/engine/Application.js";
+import { vec3 } from "../lib/gl-matrix-module.js";
 
 import { GLTFLoader } from "./GLTFLoader.js";
 import { Renderer } from "./Renderer.js";
@@ -7,13 +8,41 @@ import { Enemy } from "./Enemy.js";
 import { Turret } from "./Turret.js";
 
 class App extends Application {
+  constructor(canvas, glOptions) {
+    super(canvas, glOptions);
+    this.guiData = new Object();
+
+    Object.assign(this.guiData, {
+      mapSelection: 55,
+    });
+  }
   async start() {
     this.loader = new GLTFLoader();
     await this.loader.load("../common/models/textures/untitled.gltf");
 
+    //-2 = tla/nesmes postavljati // -1 = prazna postavljiva površina // 0/1/2 = postavljeni turreti
+    this.mapMatrix = [
+      -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2,
+      -2, -2, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -2, -1, -1, -1, -1,
+      -1, -2, -2, -2, -2, -2, -2, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2,
+      -1, -1, -2, -2, -2, -1, -1, -1, -1, -1, -1, -2, -1, -1, -2, -1, -2, -1,
+      -1, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -1, -1, -2, -1, -1, -1, -2,
+      -1, -1, -2, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1,
+      -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1, -1, -2, -2, -2, -2, -2,
+      -1, -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1,
+    ];
+
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
-    this.enemies = [await this.loader.loadEnemy("enemy0"), await this.loader.loadEnemy("enemy1"), await this.loader.loadEnemy("enemy2")];
-    this.turrets = [await this.loader.loadTurret("turret0"), await this.loader.loadTurret("turret1"), await this.loader.loadTurret("turret2")];
+    this.enemies = [
+      await this.loader.loadEnemy("enemy0"),
+      await this.loader.loadEnemy("enemy1"),
+      await this.loader.loadEnemy("enemy2"),
+    ];
+    this.turrets = [
+      await this.loader.loadTurret("turret0"),
+      await this.loader.loadTurret("turret1"),
+      await this.loader.loadTurret("turret2"),
+    ];
     this.wp = await this.loader.loadWayPoints("point", 12);
     this.scene.enemies = [];
     this.scene.turrets = [];
@@ -36,29 +65,75 @@ class App extends Application {
     this.resize();
 
     this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
-    document.addEventListener("pointerlockchange", this.pointerlockchangeHandler);
+    document.addEventListener(
+      "pointerlockchange",
+      this.pointerlockchangeHandler
+    );
     this.addEnemy = this.addEnemy.bind(this);
     document.addEventListener("click", this.addEnemy);
-
-    this.addTurret = this.addTurret.bind(this);
-    document.addEventListener("keyup", this.addTurret);
   }
 
   addEnemy(e, loc = 2) {
     const trans = Object.create(this.enemies[loc].translation);
-    let enemy = new Enemy(trans, this.scene.enemies.length, this.wp, this.enemies, loc);
+    let enemy = new Enemy(
+      trans,
+      this.scene.enemies.length,
+      this.wp,
+      this.enemies,
+      loc
+    );
     this.scene.enemies.push(enemy);
   }
 
-  addTurret(e, loc = 2) {
-    const trans = Object.create(this.turrets[loc].translation);
-    let turret = new Turret(trans, this.scene.turrets.length, this.turrets, loc);
+  addTurret(loc = 2, trans, id) {
+    let turret = new Turret(trans, id, this.turrets, loc);
     this.scene.turrets.push(turret);
-    this.scene.enemies[0].enemyLvlDown();
+    console.log(turret);
   }
 
   enableCamera() {
     this.canvas.requestPointerLock();
+  }
+
+  dodaj_Nadgradi_Turret() {
+    if (this.guiData["mapSelection"] != -1) {
+      if (this.mapMatrix[this.guiData["mapSelection"]] == -1) {
+        const x = Math.floor(this.guiData["mapSelection"] % 12) * 1 - 5.5;
+        const y = Math.floor(this.guiData["mapSelection"] / 12) * 1 - 5.5;
+        const z = 0.4;
+
+        const trans = vec3.fromValues(x, z, y);
+        this.addTurret(0, trans, this.guiData["mapSelection"]);
+        this.mapMatrix[this.guiData["mapSelection"]]++;
+
+        //new turret, dodaj id v turret = "mapSelection"
+      } else if (this.mapMatrix[this.guiData["mapSelection"]] == 0) {
+        for (let i = 0; i < this.scene.turrets.length; i++) {
+          if (this.scene.turrets[i].id == this.guiData["mapSelection"]) {
+            this.scene.turrets[i].upgradeTurret();
+            this.mapMatrix[this.guiData["mapSelection"]]++;
+          }
+        }
+      } else if (this.mapMatrix[this.guiData["mapSelection"]] == 1) {
+        for (let i = 0; i < this.scene.turrets.length; i++) {
+          if (this.scene.turrets[i].id == this.guiData["mapSelection"]) {
+            this.scene.turrets[i].upgradeTurret();
+            this.mapMatrix[this.guiData["mapSelection"]]++;
+          }
+        }
+      }
+    }
+  }
+
+  odstrani_Turret() {
+    if (this.guiData["mapSelection"] != -1) {
+      for (let i = 0; i < this.scene.turrets.length; i++) {
+        if (this.scene.turrets[i].id == this.guiData["mapSelection"])
+          this.scene.turrets.splice(i, 1);
+        if (this.mapMatrix[this.guiData["mapSelection"]] != -2)
+          this.mapMatrix[this.guiData["mapSelection"]] = -1;
+      }
+    }
   }
 
   pointerlockchangeHandler() {
@@ -128,10 +203,13 @@ class App extends Application {
     }
   }
 }
-
-document.addEventListener("DOMContentLoaded", () => {
+window.onload = function () {
   const canvas = document.querySelector("canvas");
   const app = new App(canvas);
   const gui = new GUI();
   gui.add(app, "enableCamera");
-});
+  gui.add(app.guiData, "mapSelection", 0, 143);
+  gui.add(app, "dodaj_Nadgradi_Turret");
+  gui.add(app, "odstrani_Turret");
+};
+//document.addEventListener("DOMContentLoaded", () => {});

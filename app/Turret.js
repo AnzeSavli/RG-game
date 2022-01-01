@@ -5,7 +5,8 @@ export class Turret extends Node {
   constructor(options, id, turret, loc) {
     super(options);
     this.id = id;
-    console.log(turret);
+    this.loc = loc;
+    this.turrets = turret;
     this.scale = turret[loc].scale;
     this.mesh = turret[loc].mesh;
     this.translation = options;
@@ -33,9 +34,17 @@ export class Turret extends Node {
 
     if (!enemy) return;
 
-    const TurretDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
+    const TurretDir = [
+      -Math.sin(this.rotation[1]),
+      0,
+      -Math.cos(this.rotation[1]),
+    ];
 
-    const EnemyDir = vec3.sub(vec3.create(), this.translation, enemy.translation);
+    const EnemyDir = vec3.sub(
+      vec3.create(),
+      this.translation,
+      enemy.translation
+    );
 
     EnemyDir[1] = 0;
     vec3.normalize(EnemyDir, EnemyDir);
@@ -44,7 +53,11 @@ export class Turret extends Node {
 
     this.rotation[1] += kot - Math.PI;
 
-    const newDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
+    const newDir = [
+      -Math.sin(this.rotation[1]),
+      0,
+      -Math.cos(this.rotation[1]),
+    ];
 
     const novKot = vec3.angle(newDir, EnemyDir);
 
@@ -52,8 +65,25 @@ export class Turret extends Node {
       this.rotation[1] -= 2 * (kot - Math.PI);
     }
 
-    quat.fromEuler(this.rotation, (this.rotation[0] * 180) / Math.PI, (this.rotation[1] * 180) / Math.PI, (this.rotation[2] * 180) / Math.PI);
+    quat.fromEuler(
+      this.rotation,
+      (this.rotation[0] * 180) / Math.PI,
+      (this.rotation[1] * 180) / Math.PI,
+      (this.rotation[2] * 180) / Math.PI
+    );
 
     this.updateMatrix();
+  }
+
+  upgradeTurret() {
+    if (this.loc == 0) {
+      this.scale = this.turrets[this.loc + 1].scale;
+      this.mesh = this.turrets[this.loc + 1].mesh;
+      this.loc++;
+    } else if (this.loc == 1) {
+      this.scale = this.turrets[this.loc + 1].scale;
+      this.mesh = this.turrets[this.loc + 1].mesh;
+      this.loc++;
+    }
   }
 }
