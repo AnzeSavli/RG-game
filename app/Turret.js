@@ -1,15 +1,30 @@
 import { Node } from "./Node.js";
 import { vec3, mat4, quat } from "../lib/gl-matrix-module.js";
+import { Bullet } from "./Bullet.js";
 
 export class Turret extends Node {
-  constructor(options, id, turret, loc) {
+  constructor(options, id, turret, loc, bullets) {
     super(options);
     this.id = id;
     this.loc = loc;
     this.turrets = turret;
+    this.bullets = bullets;
     this.scale = turret[loc].scale;
     this.mesh = turret[loc].mesh;
     this.translation = options;
+    this.firerate = 1000;
+    this.target;
+    this.timeFromLastFire = 0;
+  }
+
+  shoot(t) {
+    let bullet;
+    if (this.target && t - this.timeFromLastFire > this.firerate) {
+      const tr = Object.create(this.translation);
+      bullet = new Bullet(tr, this.bullets.length, this.target, this.bullets, this.loc);
+      this.timeFromLastFire = t;
+    }
+    return bullet;
   }
 
   findClosestEnemy(enemies) {
@@ -29,22 +44,17 @@ export class Turret extends Node {
     return enemies[najblizji_i];
   }
 
-  rotateToEnemy(enemies) {
+  rotateToEnemy(enemies, dt) {
     const enemy = this.findClosestEnemy(enemies);
+    if (!enemy) {
+      this.target = undefined;
+      return;
+    } else {
+      this.target = enemy;
+    }
+    const TurretDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
 
-    if (!enemy) return;
-
-    const TurretDir = [
-      -Math.sin(this.rotation[1]),
-      0,
-      -Math.cos(this.rotation[1]),
-    ];
-
-    const EnemyDir = vec3.sub(
-      vec3.create(),
-      this.translation,
-      enemy.translation
-    );
+    const EnemyDir = vec3.sub(vec3.create(), this.translation, enemy.translation);
 
     EnemyDir[1] = 0;
     vec3.normalize(EnemyDir, EnemyDir);
@@ -53,11 +63,7 @@ export class Turret extends Node {
 
     this.rotation[1] += kot - Math.PI;
 
-    const newDir = [
-      -Math.sin(this.rotation[1]),
-      0,
-      -Math.cos(this.rotation[1]),
-    ];
+    const newDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
 
     const novKot = vec3.angle(newDir, EnemyDir);
 
@@ -65,13 +71,7 @@ export class Turret extends Node {
       this.rotation[1] -= 2 * (kot - Math.PI);
     }
 
-    quat.fromEuler(
-      this.rotation,
-      (this.rotation[0] * 180) / Math.PI,
-      (this.rotation[1] * 180) / Math.PI,
-      (this.rotation[2] * 180) / Math.PI
-    );
-
+    quat.fromEuler(this.rotation, (this.rotation[0] * 180) / Math.PI, (this.rotation[1] * 180) / Math.PI, (this.rotation[2] * 180) / Math.PI);
     this.updateMatrix();
   }
 
@@ -79,10 +79,12 @@ export class Turret extends Node {
     if (this.loc == 0) {
       this.scale = this.turrets[this.loc + 1].scale;
       this.mesh = this.turrets[this.loc + 1].mesh;
+      this.firerate = 700;
       this.loc++;
     } else if (this.loc == 1) {
       this.scale = this.turrets[this.loc + 1].scale;
       this.mesh = this.turrets[this.loc + 1].mesh;
+      this.firerate = 400;
       this.loc++;
     }
   }

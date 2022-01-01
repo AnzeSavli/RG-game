@@ -6,6 +6,7 @@ import { GLTFLoader } from "./GLTFLoader.js";
 import { Renderer } from "./Renderer.js";
 import { Enemy } from "./Enemy.js";
 import { Turret } from "./Turret.js";
+import { Bullet } from "./Bullet.js";
 
 class App extends Application {
   constructor(canvas, glOptions) {
@@ -22,30 +23,21 @@ class App extends Application {
 
     //-2 = tla/nesmes postavljati // -1 = prazna postavljiva površina // 0/1/2 = postavljeni turreti
     this.mapMatrix = [
-      -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2,
-      -2, -2, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -2, -1, -1, -1, -1,
-      -1, -2, -2, -2, -2, -2, -2, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2,
-      -1, -1, -2, -2, -2, -1, -1, -1, -1, -1, -1, -2, -1, -1, -2, -1, -2, -1,
-      -1, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -1, -1, -2, -1, -1, -1, -2,
-      -1, -1, -2, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1,
-      -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1, -1, -2, -2, -2, -2, -2,
-      -1, -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1,
+      -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2, -2, -2, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -2, -1, -1, -1, -1, -1, -2,
+      -2, -2, -2, -2, -2, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -2, -2, -2, -1, -1, -1, -1, -1, -1, -2, -1, -1, -2, -1, -2, -1, -1, -2, -2, -2,
+      -2, -2, -2, -2, -2, -2, -2, -1, -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1, -1, -2, -1, -1, -1, -2,
+      -1, -1, -2, -1, -1, -1, -1, -2, -2, -2, -2, -2, -1, -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1,
     ];
 
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
-    this.enemies = [
-      await this.loader.loadEnemy("enemy0"),
-      await this.loader.loadEnemy("enemy1"),
-      await this.loader.loadEnemy("enemy2"),
-    ];
-    this.turrets = [
-      await this.loader.loadTurret("turret0"),
-      await this.loader.loadTurret("turret1"),
-      await this.loader.loadTurret("turret2"),
-    ];
+    this.enemies = [await this.loader.loadEnemy("enemy0"), await this.loader.loadEnemy("enemy1"), await this.loader.loadEnemy("enemy2")];
+    this.turrets = [await this.loader.loadTurret("turret0"), await this.loader.loadTurret("turret1"), await this.loader.loadTurret("turret2")];
+
+    this.bullets = [await this.loader.loadBullet("bullet0"), await this.loader.loadBullet("bullet1"), await this.loader.loadBullet("bullet2")];
     this.wp = await this.loader.loadWayPoints("point", 12);
     this.scene.enemies = [];
     this.scene.turrets = [];
+    this.scene.bullets = [];
 
     this.camera = await this.loader.loadNode("Camera");
 
@@ -61,32 +53,24 @@ class App extends Application {
     this.renderer.prepareScene(this.scene);
     this.renderer.prepareNodeArray(this.enemies);
     this.renderer.prepareNodeArray(this.turrets);
+    this.renderer.prepareNodeArray(this.bullets);
 
     this.resize();
 
     this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
-    document.addEventListener(
-      "pointerlockchange",
-      this.pointerlockchangeHandler
-    );
+    document.addEventListener("pointerlockchange", this.pointerlockchangeHandler);
     this.addEnemy = this.addEnemy.bind(this);
     document.addEventListener("click", this.addEnemy);
   }
 
   addEnemy(e, loc = 2) {
     const trans = Object.create(this.enemies[loc].translation);
-    let enemy = new Enemy(
-      trans,
-      this.scene.enemies.length,
-      this.wp,
-      this.enemies,
-      loc
-    );
+    let enemy = new Enemy(trans, this.scene.enemies.length, this.wp, this.enemies, loc);
     this.scene.enemies.push(enemy);
   }
 
   addTurret(loc = 2, trans, id) {
-    let turret = new Turret(trans, id, this.turrets, loc);
+    let turret = new Turret(trans, id, this.turrets, loc, this.bullets);
     this.scene.turrets.push(turret);
     console.log(turret);
   }
@@ -128,10 +112,8 @@ class App extends Application {
   odstrani_Turret() {
     if (this.guiData["mapSelection"] != -1) {
       for (let i = 0; i < this.scene.turrets.length; i++) {
-        if (this.scene.turrets[i].id == this.guiData["mapSelection"])
-          this.scene.turrets.splice(i, 1);
-        if (this.mapMatrix[this.guiData["mapSelection"]] != -2)
-          this.mapMatrix[this.guiData["mapSelection"]] = -1;
+        if (this.scene.turrets[i].id == this.guiData["mapSelection"]) this.scene.turrets.splice(i, 1);
+        if (this.mapMatrix[this.guiData["mapSelection"]] != -2) this.mapMatrix[this.guiData["mapSelection"]] = -1;
       }
     }
   }
@@ -154,7 +136,6 @@ class App extends Application {
     this.startTime = this.time;
     if (this.scene) {
       if (this.camera) {
-        this.camera.updateMatrix();
         this.camera.update(dt);
       }
 
@@ -163,17 +144,41 @@ class App extends Application {
       }
 
       if (this.scene.enemies) {
-        for (let i = 0; i < this.scene.enemies.length; i++) {
-          this.scene.enemies[i].rotate(dt);
-          this.scene.enemies[i].updateMatrix();
-          this.scene.enemies[i].moveEnemy(dt);
+        for (const enemy of this.scene.enemies) {
+          if (enemy.dead()) {
+            let j = 0;
+            while (j < this.scene.bullets.length) {
+              if (this.scene.bullets[j].enemy == enemy) {
+                this.scene.bullets.splice(j, 1);
+              } else {
+                ++j;
+              }
+            }
+            const i = this.scene.enemies.indexOf(enemy);
+            this.scene.enemies.splice(i, 1);
+            continue;
+          }
+          enemy.rotate(dt);
+          enemy.moveEnemy(dt);
         }
       }
 
       if (this.scene.turrets) {
-        for (let i = 0; i < this.scene.turrets.length; i++) {
-          if (this.scene.enemies) {
-            this.scene.turrets[i].rotateToEnemy(this.scene.enemies);
+        for (const turret of this.scene.turrets) {
+          turret.rotateToEnemy(this.scene.enemies, dt);
+          let bullet = turret.shoot(this.time);
+          if (bullet) {
+            this.scene.bullets.push(bullet);
+          }
+        }
+      }
+
+      if (this.scene.bullets) {
+        for (const bullet of this.scene.bullets) {
+          bullet.moveToEnemy(dt);
+          if (bullet.collision()) {
+            const i = this.scene.bullets.indexOf(bullet);
+            this.scene.bullets.splice(i, 1);
           }
         }
       }
@@ -188,6 +193,9 @@ class App extends Application {
       }
       if (this.scene.turrets) {
         this.renderer.renderNodeArray(this.scene.turrets, this.camera);
+      }
+      if (this.scene.bullets) {
+        this.renderer.renderNodeArray(this.scene.bullets, this.camera);
       }
     }
   }

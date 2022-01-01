@@ -25,11 +25,7 @@ export class Renderer {
       return this.glObjects.get(bufferView);
     }
 
-    const buffer = new DataView(
-      bufferView.buffer,
-      bufferView.byteOffset,
-      bufferView.byteLength
-    );
+    const buffer = new DataView(bufferView.buffer, bufferView.byteOffset, bufferView.byteLength);
     const glBuffer = WebGL.createBuffer(this.gl, {
       target: bufferView.target,
       data: buffer,
@@ -64,12 +60,7 @@ export class Renderer {
     this.prepareSampler(texture.sampler);
     const glTexture = this.prepareImage(texture.image);
 
-    const mipmapModes = [
-      gl.NEAREST_MIPMAP_NEAREST,
-      gl.NEAREST_MIPMAP_LINEAR,
-      gl.LINEAR_MIPMAP_NEAREST,
-      gl.LINEAR_MIPMAP_LINEAR,
-    ];
+    const mipmapModes = [gl.NEAREST_MIPMAP_NEAREST, gl.NEAREST_MIPMAP_LINEAR, gl.LINEAR_MIPMAP_NEAREST, gl.LINEAR_MIPMAP_LINEAR];
 
     if (!texture.hasMipmaps && mipmapModes.includes(texture.sampler.min)) {
       gl.bindTexture(gl.TEXTURE_2D, glTexture);
@@ -129,14 +120,7 @@ export class Renderer {
         const buffer = this.prepareBufferView(bufferView);
         gl.bindBuffer(bufferView.target, buffer);
         gl.enableVertexAttribArray(attributeIndex);
-        gl.vertexAttribPointer(
-          attributeIndex,
-          accessor.numComponents,
-          accessor.componentType,
-          accessor.normalized,
-          bufferView.byteStride,
-          accessor.byteOffset
-        );
+        gl.vertexAttribPointer(attributeIndex, accessor.numComponents, accessor.componentType, accessor.normalized, bufferView.byteStride, accessor.byteOffset);
       }
     }
 
