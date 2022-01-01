@@ -6,16 +6,13 @@ export class Enemy extends Node {
     super(options);
     this.id = id;
     this.loc = loc;
-    this.health = 100;
+    this.health = 300;
     this.speed = 200;
     this.currWaypoint = 0;
     this.wp = waypoints;
     this.enemy = enemies;
     this.scale = enemies[loc].scale;
     this.mesh = enemies[loc].mesh;
-    if (loc == 2) this.health = 300;
-    if (loc == 1) this.health = 200;
-    if (loc == 0) this.health = 100;
     this.translation = Object.create(this.wp[this.currWaypoint].translation);
     this.rotateSpeedX = 1;
     this.rotateSpeedY = 1;
@@ -53,8 +50,7 @@ export class Enemy extends Node {
   enemyLvlDown() {
     if (this.health > 200) {
       this.health -= 25;
-    }
-    if (this.health <= 200 && this.health > 100) {
+    } else if (this.health <= 200 && this.health > 100) {
       this.loc = 1;
       this.scale = this.enemy[this.loc].scale;
       this.mesh = this.enemy[this.loc].mesh;
