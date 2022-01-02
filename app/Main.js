@@ -9,9 +9,12 @@ import { Turret } from "./Turret.js";
 import { Bullet } from "./Bullet.js";
 
 class App extends Application {
-  constructor(canvas, glOptions) {
+  constructor(health, money, wave, canvas, glOptions) {
     super(canvas, glOptions);
     this.guiData = new Object();
+    this.healthNode = health;
+    this.moneyNode = money;
+    this.waveNode = wave;
 
     Object.assign(this.guiData, {
       mapSelection: 55,
@@ -23,23 +26,44 @@ class App extends Application {
 
     //-2 = tla/nesmes postavljati // -1 = prazna postavljiva površina // 0/1/2 = postavljeni turreti
     this.mapMatrix = [
-      -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2, -2, -2, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -2, -1, -1, -1, -1, -1, -2,
-      -2, -2, -2, -2, -2, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -2, -2, -2, -1, -1, -1, -1, -1, -1, -2, -1, -1, -2, -1, -2, -1, -1, -2, -2, -2,
-      -2, -2, -2, -2, -2, -2, -2, -1, -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1, -1, -2, -1, -1, -1, -2,
-      -1, -1, -2, -1, -1, -1, -1, -2, -2, -2, -2, -2, -1, -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1,
+      -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2,
+      -2, -2, -1, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -2, -1, -1, -1, -1,
+      -1, -2, -2, -2, -2, -2, -2, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2,
+      -1, -1, -2, -2, -2, -1, -1, -1, -1, -1, -1, -2, -1, -1, -2, -1, -2, -1,
+      -1, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -1, -1, -2, -1, -1, -1, -2,
+      -1, -1, -2, -1, -1, -1, -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1,
+      -1, -2, -1, -1, -1, -2, -1, -1, -2, -1, -1, -1, -1, -2, -2, -2, -2, -2,
+      -1, -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -1, -1, -1,
     ];
 
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
-    this.enemies = [await this.loader.loadEnemy("enemy0"), await this.loader.loadEnemy("enemy1"), await this.loader.loadEnemy("enemy2")];
-    this.turrets = [await this.loader.loadTurret("turret0"), await this.loader.loadTurret("turret1"), await this.loader.loadTurret("turret2")];
+    this.enemies = [
+      await this.loader.loadEnemy("enemy0"),
+      await this.loader.loadEnemy("enemy1"),
+      await this.loader.loadEnemy("enemy2"),
+    ];
+    this.turrets = [
+      await this.loader.loadTurret("turret0"),
+      await this.loader.loadTurret("turret1"),
+      await this.loader.loadTurret("turret2"),
+    ];
 
-    this.bullets = [await this.loader.loadBullet("bullet0"), await this.loader.loadBullet("bullet1"), await this.loader.loadBullet("bullet2")];
+    this.bullets = [
+      await this.loader.loadBullet("bullet0"),
+      await this.loader.loadBullet("bullet1"),
+      await this.loader.loadBullet("bullet2"),
+    ];
     this.wp = await this.loader.loadWayPoints("point", 12);
     this.scene.enemies = [];
     this.scene.turrets = [];
     this.scene.bullets = [];
 
     this.camera = await this.loader.loadNode("Camera");
+
+    this.hp = 3;
+    this.money = 100;
+    this.startwave = false;
+    this.currwave = 0;
 
     if (!this.scene || !this.camera) {
       throw new Error("Scene or Camera not present in glTF");
@@ -58,14 +82,23 @@ class App extends Application {
     this.resize();
 
     this.pointerlockchangeHandler = this.pointerlockchangeHandler.bind(this);
-    document.addEventListener("pointerlockchange", this.pointerlockchangeHandler);
+    document.addEventListener(
+      "pointerlockchange",
+      this.pointerlockchangeHandler
+    );
     this.addEnemy = this.addEnemy.bind(this);
     document.addEventListener("click", this.addEnemy);
   }
 
   addEnemy(e, loc = 2) {
     const trans = Object.create(this.enemies[loc].translation);
-    let enemy = new Enemy(trans, this.scene.enemies.length, this.wp, this.enemies, loc);
+    let enemy = new Enemy(
+      trans,
+      this.scene.enemies.length,
+      this.wp,
+      this.enemies,
+      loc
+    );
     this.scene.enemies.push(enemy);
   }
 
@@ -81,7 +114,10 @@ class App extends Application {
 
   dodaj_Nadgradi_Turret() {
     if (this.guiData["mapSelection"] != -1) {
-      if (this.mapMatrix[this.guiData["mapSelection"]] == -1) {
+      if (
+        this.mapMatrix[this.guiData["mapSelection"]] == -1 &&
+        this.money >= 25
+      ) {
         const x = Math.floor(this.guiData["mapSelection"] % 12) * 1 - 5.5;
         const y = Math.floor(this.guiData["mapSelection"] / 12) * 1 - 5.5;
         const z = 0.4;
@@ -89,20 +125,29 @@ class App extends Application {
         const trans = vec3.fromValues(x, z, y);
         this.addTurret(0, trans, this.guiData["mapSelection"]);
         this.mapMatrix[this.guiData["mapSelection"]]++;
+        this.money -= 25;
 
         //new turret, dodaj id v turret = "mapSelection"
-      } else if (this.mapMatrix[this.guiData["mapSelection"]] == 0) {
+      } else if (
+        this.mapMatrix[this.guiData["mapSelection"]] == 0 &&
+        this.money >= 30
+      ) {
         for (let i = 0; i < this.scene.turrets.length; i++) {
           if (this.scene.turrets[i].id == this.guiData["mapSelection"]) {
             this.scene.turrets[i].upgradeTurret();
             this.mapMatrix[this.guiData["mapSelection"]]++;
+            this.money -= 30;
           }
         }
-      } else if (this.mapMatrix[this.guiData["mapSelection"]] == 1) {
+      } else if (
+        this.mapMatrix[this.guiData["mapSelection"]] == 1 &&
+        this.money >= 45
+      ) {
         for (let i = 0; i < this.scene.turrets.length; i++) {
           if (this.scene.turrets[i].id == this.guiData["mapSelection"]) {
             this.scene.turrets[i].upgradeTurret();
             this.mapMatrix[this.guiData["mapSelection"]]++;
+            this.money -= 45;
           }
         }
       }
@@ -112,8 +157,18 @@ class App extends Application {
   odstrani_Turret() {
     if (this.guiData["mapSelection"] != -1) {
       for (let i = 0; i < this.scene.turrets.length; i++) {
-        if (this.scene.turrets[i].id == this.guiData["mapSelection"]) this.scene.turrets.splice(i, 1);
-        if (this.mapMatrix[this.guiData["mapSelection"]] != -2) this.mapMatrix[this.guiData["mapSelection"]] = -1;
+        if (this.scene.turrets[i].id == this.guiData["mapSelection"]) {
+          if (this.mapMatrix[this.guiData["mapSelection"]] == 0) {
+            this.money += 15;
+          } else if (this.mapMatrix[this.guiData["mapSelection"]] == 1) {
+            this.money += 45;
+          } else if (this.mapMatrix[this.guiData["mapSelection"]] == 2) {
+            this.money += 75;
+          }
+          this.scene.turrets.splice(i, 1);
+        }
+        if (this.mapMatrix[this.guiData["mapSelection"]] != -2)
+          this.mapMatrix[this.guiData["mapSelection"]] = -1;
       }
     }
   }
@@ -145,7 +200,13 @@ class App extends Application {
 
       if (this.scene.enemies) {
         for (const enemy of this.scene.enemies) {
-          if (enemy.dead()) {
+          if (enemy.dead() || enemy.reachedEnd()) {
+            if (enemy.reachedEnd()) {
+              this.hp--;
+            }
+            if (enemy.dead()) {
+              this.money += 10;
+            }
             let j = 0;
             while (j < this.scene.bullets.length) {
               if (this.scene.bullets[j].enemy == enemy) {
@@ -183,6 +244,10 @@ class App extends Application {
         }
       }
     }
+
+    if (this.hp <= 0) {
+      location.reload(true);
+    }
   }
 
   render() {
@@ -198,6 +263,9 @@ class App extends Application {
         this.renderer.renderNodeArray(this.scene.bullets, this.camera);
       }
     }
+    this.showHP();
+    this.showMoney();
+    this.showWave();
   }
 
   resize() {
@@ -210,14 +278,42 @@ class App extends Application {
       this.camera.camera.updateMatrix();
     }
   }
+
+  showHP() {
+    this.healthNode.nodeValue = this.hp;
+  }
+  showMoney() {
+    this.moneyNode.nodeValue = this.money;
+  }
+  showWave() {
+    this.waveNode.nodeValue = this.currwave;
+  }
+
+  start_next_wave() {
+    if (!this.startwave) {
+      this.startwave = true;
+      this.currwave++;
+    }
+  }
 }
 window.onload = function () {
   const canvas = document.querySelector("canvas");
-  const app = new App(canvas);
+  var healthElement = document.querySelector("#health");
+  var healthNode = document.createTextNode("");
+  var moneyElement = document.querySelector("#money");
+  var moneyNode = document.createTextNode("");
+  var waveElement = document.querySelector("#wave");
+  var waveNode = document.createTextNode("");
+  healthElement.appendChild(healthNode);
+  moneyElement.appendChild(moneyNode);
+  waveElement.appendChild(waveNode);
+
+  const app = new App(healthNode, moneyNode, waveNode, canvas);
   const gui = new GUI();
   gui.add(app, "enableCamera");
   gui.add(app.guiData, "mapSelection", 0, 143);
   gui.add(app, "dodaj_Nadgradi_Turret");
   gui.add(app, "odstrani_Turret");
+  gui.add(app, "start_next_wave");
 };
 //document.addEventListener("DOMContentLoaded", () => {});

@@ -29,7 +29,11 @@ export class Enemy extends Node {
 
   moveEnemy(dt) {
     let direction = vec3.create();
-    vec3.sub(direction, this.translation, this.wp[this.currWaypoint + 1].translation);
+    vec3.sub(
+      direction,
+      this.translation,
+      this.wp[this.currWaypoint + 1].translation
+    );
     vec3.normalize(direction, direction);
     direction[0] = -direction[0];
     direction[1] = -direction[1];
@@ -40,7 +44,13 @@ export class Enemy extends Node {
     vec3.scaleAndAdd(velocity, velocity, acc, dt * this.speed);
     vec3.scaleAndAdd(this.translation, this.translation, velocity, dt);
     this.updateMatrix();
-    if (vec3.distance(this.translation, this.wp[this.currWaypoint + 1].translation) <= 0.05 && this.currWaypoint < this.wp.length - 2) {
+    if (
+      vec3.distance(
+        this.translation,
+        this.wp[this.currWaypoint + 1].translation
+      ) <= 0.05 &&
+      this.currWaypoint < this.wp.length - 1
+    ) {
       this.currWaypoint++;
     }
   }
@@ -63,5 +73,10 @@ export class Enemy extends Node {
     } else {
       this.health = -100;
     }
+  }
+
+  reachedEnd() {
+    if (this.currWaypoint == this.wp.length - 1) return true;
+    return false;
   }
 }

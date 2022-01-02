@@ -11,7 +11,7 @@ export class Bullet extends Node {
     this.scale = bullets[loc].scale;
     this.mesh = bullets[loc].mesh;
     this.enemy = enemy;
-    this.speed = 250;
+    this.speed = 500;
   }
 
   collision(enemies) {
@@ -51,9 +51,17 @@ export class Bullet extends Node {
     } else {
       this.target = enemy;
     }
-    const TurretDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
+    const TurretDir = [
+      -Math.sin(this.rotation[1]),
+      0,
+      -Math.cos(this.rotation[1]),
+    ];
 
-    const EnemyDir = vec3.sub(vec3.create(), this.translation, enemy.translation);
+    const EnemyDir = vec3.sub(
+      vec3.create(),
+      this.translation,
+      enemy.translation
+    );
 
     EnemyDir[1] = 0;
     vec3.normalize(EnemyDir, EnemyDir);
@@ -62,7 +70,11 @@ export class Bullet extends Node {
 
     this.rotation[1] += kot - Math.PI;
 
-    const newDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
+    const newDir = [
+      -Math.sin(this.rotation[1]),
+      0,
+      -Math.cos(this.rotation[1]),
+    ];
 
     const novKot = vec3.angle(newDir, EnemyDir);
 
@@ -70,7 +82,12 @@ export class Bullet extends Node {
       this.rotation[1] -= 2 * (kot - Math.PI);
     }
 
-    quat.fromEuler(this.rotation, (this.rotation[0] * 180) / Math.PI, (this.rotation[1] * 180) / Math.PI, (this.rotation[2] * 180) / Math.PI);
+    quat.fromEuler(
+      this.rotation,
+      (this.rotation[0] * 180) / Math.PI,
+      (this.rotation[1] * 180) / Math.PI,
+      (this.rotation[2] * 180) / Math.PI
+    );
     this.updateMatrix();
   }
 }
