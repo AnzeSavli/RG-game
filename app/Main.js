@@ -21,6 +21,9 @@ class App extends Application {
     });
   }
   async start() {
+    this.spawned = false;
+    this.waves = [{lvl0:1, lvl1:0, lvl2:0, delay: 500}, {lvl0:2, lvl1:0, lvl2:0, delay: 500}];    
+    this.pause = true;
     this.loader = new GLTFLoader();
     await this.loader.load("../common/models/textures/untitled.gltf");
 
@@ -62,8 +65,7 @@ class App extends Application {
 
     this.hp = 3;
     this.money = 100;
-    this.startwave = false;
-    this.currwave = 0;
+    this.currwave = 0;  	
 
     if (!this.scene || !this.camera) {
       throw new Error("Scene or Camera not present in glTF");
@@ -86,18 +88,20 @@ class App extends Application {
       "pointerlockchange",
       this.pointerlockchangeHandler
     );
-    this.addEnemy = this.addEnemy.bind(this);
-    document.addEventListener("click", this.addEnemy);
+    //this.addEnemy = this.addEnemy.bind(this);
+    //document.addEventListener("click", this.addEnemy);
   }
 
-  addEnemy(e, loc = 2) {
+  addEnemy(e, loc = 2, delay = 200, time = Date.now()) {
     const trans = Object.create(this.enemies[loc].translation);
     let enemy = new Enemy(
       trans,
       this.scene.enemies.length,
       this.wp,
       this.enemies,
-      loc
+      loc,
+      delay,
+      time
     );
     this.scene.enemies.push(enemy);
   }
@@ -185,7 +189,8 @@ class App extends Application {
     }
   }
 
-  update() {
+  update() {   
+    
     const t = (this.time = Date.now());
     const dt = (this.time - this.startTime) * 0.001;
     this.startTime = this.time;
@@ -198,7 +203,28 @@ class App extends Application {
         this.physics.updateMatrix();
       }
 
-      if (this.scene.enemies) {
+      if (this.scene.enemies && !this.pause) {
+        if(!this.spawned) {
+          this.spawned = true;     
+          let delay = 0;     
+          for(let i = 0; i < this.waves[this.currwave].lvl0; i++) {
+            delay += this.waves[this.currwave].delay
+            this.addEnemy(dt, 0, delay);
+          }
+          for(let i = 0; i < this.waves[this.currwave].lvl1; i++) {
+            delay += this.waves[this.currwave].delay
+            this.addEnemy(dt, 1, delay);
+          }
+          for(let i = 0; i < this.waves[this.currwave].lvl2; i++) {
+            delay += this.waves[this.currwave].delay
+            this.addEnemy(dt, 2, delay);
+          }
+        }
+        if(this.scene.enemies.length == 0) {
+          this.pause = true;
+          this.currwave++;
+          this.spawned = false;
+        }
         for (const enemy of this.scene.enemies) {
           if (enemy.dead() || enemy.reachedEnd()) {
             if (enemy.reachedEnd()) {
@@ -220,7 +246,8 @@ class App extends Application {
             continue;
           }
           enemy.rotate(dt);
-          enemy.moveEnemy(dt);
+          if(!this.pause)
+            enemy.moveEnemy(dt, t);
         }
       }
 
@@ -288,13 +315,10 @@ class App extends Application {
   showWave() {
     this.waveNode.nodeValue = this.currwave;
   }
-
-  start_next_wave() {
-    if (!this.startwave) {
-      this.startwave = true;
-      this.currwave++;
-    }
+  begin() {
+    this.pause = false;
   }
+
 }
 window.onload = function () {
   const canvas = document.querySelector("canvas");
@@ -314,6 +338,6 @@ window.onload = function () {
   gui.add(app.guiData, "mapSelection", 0, 143);
   gui.add(app, "dodaj_Nadgradi_Turret");
   gui.add(app, "odstrani_Turret");
-  gui.add(app, "start_next_wave");
+  gui.add(app, "begin");
 };
 //document.addEventListener("DOMContentLoaded", () => {});

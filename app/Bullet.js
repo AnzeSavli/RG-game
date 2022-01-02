@@ -11,8 +11,9 @@ export class Bullet extends Node {
     this.scale = bullets[loc].scale;
     this.mesh = bullets[loc].mesh;
     this.enemy = enemy;
-    this.speed = 300;
+    this.speed = 250;
     this.justSpawned = true;
+    this.updateMatrix();
   }
 
   collision(enemies) {

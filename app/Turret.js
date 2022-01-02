@@ -15,6 +15,7 @@ export class Turret extends Node {
     this.firerate = 1000;
     this.target;
     this.timeFromLastFire = 0;
+    this.updateMatrix();
   }
 
   shoot(t) {
@@ -28,7 +29,7 @@ export class Turret extends Node {
   }
 
   findClosestEnemy(enemies) {
-    let razdalja = 999999;
+    let razdalja = 3;
     let najblizji_i = -1;
     let tmp_razdalja;
 
