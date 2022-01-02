@@ -11,7 +11,8 @@ export class Bullet extends Node {
     this.scale = bullets[loc].scale;
     this.mesh = bullets[loc].mesh;
     this.enemy = enemy;
-    this.speed = 500;
+    this.speed = 300;
+    this.justSpawned = true;
   }
 
   collision(enemies) {
@@ -37,7 +38,14 @@ export class Bullet extends Node {
     const velocity = [0, 0, 0];
     let acc = vec3.create();
     vec3.add(acc, acc, direction);
-    vec3.scaleAndAdd(velocity, velocity, acc, dt * this.speed);
+
+    if(this.justSpawned){
+      vec3.scaleAndAdd(velocity, velocity, acc, dt * 2500);
+      this.justSpawned = false;
+    }
+    else
+      vec3.scaleAndAdd(velocity, velocity, acc, dt * this.speed); 
+
     vec3.scaleAndAdd(this.translation, this.translation, velocity, dt);
     this.rotateToEnemy(dt);
     this.updateMatrix();
