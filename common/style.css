@@ -60,6 +60,7 @@ a.back:hover {
   font-weight: bold;
   position: fixed;
   display: block;
+  font-size: 0.6vw;
 }
 
 .gameover {
@@ -77,6 +78,7 @@ a.back:hover {
   font-weight: bold;
   position: fixed;
   display: none;
+  font-size: 0.6vw;
 }
 
 .gamewin {
@@ -94,6 +96,7 @@ a.back:hover {
   font-weight: bold;
   position: fixed;
   display: none;
+  font-size: 0.6vw;
 }
 
 #button2 {
