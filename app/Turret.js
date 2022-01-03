@@ -21,8 +21,24 @@ export class Turret extends Node {
   shoot(t) {
     let bullet;
     if (this.target && t - this.timeFromLastFire > this.firerate) {
+      if (this.loc == 0) {
+        let audio = new Audio("../common/sounds/shoot1.mp3");
+        audio.play();
+      } else if (this.loc == 1) {
+        let audio = new Audio("../common/sounds/shoot2.mp3");
+        audio.play();
+      } else if (this.loc == 2) {
+        let audio = new Audio("../common/sounds/shoot3.mp3");
+        audio.play();
+      }
       const tr = Object.create(this.translation);
-      bullet = new Bullet(tr, this.bullets.length, this.target, this.bullets, this.loc);
+      bullet = new Bullet(
+        tr,
+        this.bullets.length,
+        this.target,
+        this.bullets,
+        this.loc
+      );
       this.timeFromLastFire = t;
     }
     return bullet;
@@ -53,9 +69,17 @@ export class Turret extends Node {
     } else {
       this.target = enemy;
     }
-    const TurretDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
+    const TurretDir = [
+      -Math.sin(this.rotation[1]),
+      0,
+      -Math.cos(this.rotation[1]),
+    ];
 
-    const EnemyDir = vec3.sub(vec3.create(), this.translation, enemy.translation);
+    const EnemyDir = vec3.sub(
+      vec3.create(),
+      this.translation,
+      enemy.translation
+    );
 
     EnemyDir[1] = 0;
     vec3.normalize(EnemyDir, EnemyDir);
@@ -64,7 +88,11 @@ export class Turret extends Node {
 
     this.rotation[1] += kot - Math.PI;
 
-    const newDir = [-Math.sin(this.rotation[1]), 0, -Math.cos(this.rotation[1])];
+    const newDir = [
+      -Math.sin(this.rotation[1]),
+      0,
+      -Math.cos(this.rotation[1]),
+    ];
 
     const novKot = vec3.angle(newDir, EnemyDir);
 
@@ -72,7 +100,12 @@ export class Turret extends Node {
       this.rotation[1] -= 2 * (kot - Math.PI);
     }
 
-    quat.fromEuler(this.rotation, (this.rotation[0] * 180) / Math.PI, (this.rotation[1] * 180) / Math.PI, (this.rotation[2] * 180) / Math.PI);
+    quat.fromEuler(
+      this.rotation,
+      (this.rotation[0] * 180) / Math.PI,
+      (this.rotation[1] * 180) / Math.PI,
+      (this.rotation[2] * 180) / Math.PI
+    );
     this.updateMatrix();
   }
 

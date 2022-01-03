@@ -39,9 +39,9 @@ export class Enemy extends Node {
 
   moveEnemy(dt, time) {
     if (this.currWaypoint == 0) {
-      this.speed = 1000;
+      this.speed = 1100;
     } else {
-      this.speed = 200;
+      this.speed = 300;
     }
     if (!this.move) {
       if (time - this.time > this.delay) {
@@ -86,12 +86,12 @@ export class Enemy extends Node {
       this.loc = 1;
       this.scale = this.enemy[this.loc].scale;
       this.mesh = this.enemy[this.loc].mesh;
-      this.health -= 15;
+      this.health -= 20;
     } else if (this.health <= 100 && this.health > 0) {
       this.loc = 0;
       this.scale = this.enemy[this.loc].scale;
       this.mesh = this.enemy[this.loc].mesh;
-      this.health -= 25;
+      this.health -= 15;
     } else {
       this.health = -100;
     }

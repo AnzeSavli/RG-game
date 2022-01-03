@@ -24,8 +24,8 @@ class App extends Application {
   async start() {
     this.spawned = false;
     this.waves = [
-      { lvl0: 1, lvl1: 0, lvl2: 0, delayMin: 200, delayMax: 2000 },
       { lvl0: 2, lvl1: 0, lvl2: 0, delayMin: 200, delayMax: 2000 },
+      { lvl0: 3, lvl1: 0, lvl2: 0, delayMin: 200, delayMax: 2000 },
       { lvl0: 4, lvl1: 1, lvl2: 0, delayMin: 200, delayMax: 2000 },
       { lvl0: 4, lvl1: 2, lvl2: 0, delayMin: 200, delayMax: 2000 },
       { lvl0: 4, lvl1: 3, lvl2: 1, delayMin: 200, delayMax: 2000 },
@@ -33,6 +33,15 @@ class App extends Application {
       { lvl0: 3, lvl1: 5, lvl2: 3, delayMin: 200, delayMax: 2000 },
       { lvl0: 5, lvl1: 5, lvl2: 5, delayMin: 200, delayMax: 2000 },
       { lvl0: 5, lvl1: 7, lvl2: 5, delayMin: 200, delayMax: 2000 },
+      { lvl0: 10, lvl1: 5, lvl2: 5, delayMin: 200, delayMax: 2000 },
+      { lvl0: 8, lvl1: 8, lvl2: 3, delayMin: 200, delayMax: 2000 },
+      { lvl0: 12, lvl1: 7, lvl2: 4, delayMin: 200, delayMax: 2000 },
+      { lvl0: 15, lvl1: 5, lvl2: 8, delayMin: 200, delayMax: 2000 },
+      { lvl0: 10, lvl1: 2, lvl2: 10, delayMin: 200, delayMax: 2000 },
+      { lvl0: 5, lvl1: 10, lvl2: 10, delayMin: 200, delayMax: 2000 },
+      { lvl0: 10, lvl1: 10, lvl2: 10, delayMin: 200, delayMax: 2000 },
+      { lvl0: 25, lvl1: 0, lvl2: 0, delayMin: 200, delayMax: 2000 },
+      { lvl0: 5, lvl1: 15, lvl2: 10, delayMin: 200, delayMax: 2000 },
     ];
     this.pause = true;
     this.loader = new GLTFLoader();
@@ -67,7 +76,7 @@ class App extends Application {
       await this.loader.loadBullet("bullet1"),
       await this.loader.loadBullet("bullet2"),
     ];
-    this.wp = await this.loader.loadWayPoints("point", 12);
+    this.wp = await this.loader.loadWayPoints("point", 13);
     this.scene.enemies = [];
     this.scene.turrets = [];
     this.scene.bullets = [];
@@ -99,8 +108,6 @@ class App extends Application {
       "pointerlockchange",
       this.pointerlockchangeHandler
     );
-    //this.addEnemy = this.addEnemy.bind(this);
-    //document.addEventListener("click", this.addEnemy);
   }
 
   addEnemy(e, loc = 2, delay = 200, time = Date.now()) {
@@ -141,8 +148,6 @@ class App extends Application {
         this.addTurret(0, trans, this.guiData["mapSelection"]);
         this.mapMatrix[this.guiData["mapSelection"]]++;
         this.money -= 25;
-
-        //new turret, dodaj id v turret = "mapSelection"
       } else if (
         this.mapMatrix[this.guiData["mapSelection"]] == 0 &&
         this.money >= 30
@@ -213,6 +218,12 @@ class App extends Application {
         this.physics.updateMatrix();
       }
 
+      if (this.currwave == this.waves.length) {
+        document.getElementById("gamewin").style.display = "block";
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("game").style.filter = "blur(10px)";
+      }
+
       if (this.scene.enemies && !this.pause) {
         if (!this.spawned) {
           this.spawned = true;
@@ -254,6 +265,8 @@ class App extends Application {
             }
             if (enemy.dead()) {
               this.money += 10;
+              let sound = new Audio("../common/sounds/deadvirus.mp3");
+              sound.play();
             }
             let j = 0;
             while (j < this.scene.bullets.length) {
@@ -294,7 +307,11 @@ class App extends Application {
     }
 
     if (this.hp <= 0) {
-      location.reload(true);
+      document.getElementById("result").innerHTML =
+        "you survived: " + this.currwave + " waves";
+      document.getElementById("gameover").style.display = "block";
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("game").style.filter = "blur(10px)";
     }
   }
 
@@ -338,6 +355,8 @@ class App extends Application {
   }
   begin() {
     this.pause = false;
+    this.audio.loop = true;
+    this.audio.volume = 0.5;
     this.audio.play();
   }
 }
@@ -356,7 +375,7 @@ window.onload = function () {
   const app = new App(healthNode, moneyNode, waveNode, canvas);
   const gui = new GUI();
   gui.add(app, "enableCamera");
-  gui.add(app.guiData, "mapSelection", 0, 143);
+  gui.add(app.guiData, "mapSelection", 0, 143, 1);
   gui.add(app, "dodaj_Nadgradi_Turret");
   gui.add(app, "odstrani_Turret");
   gui.add(app, "begin");

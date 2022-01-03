@@ -12,6 +12,7 @@ html {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  filter: blur(10px);
 }
 
 .fullscreen > * {
@@ -26,6 +27,8 @@ html {
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   font-size: larger;
+  color: white;
+  display: none;
 }
 
 a.back {
@@ -40,4 +43,81 @@ a.back {
 
 a.back:hover {
   background: #ddd;
+}
+
+.startup {
+  left: 40%;
+  width: 20%;
+  top: 20%;
+  height: 60%;
+  margin: 0%;
+  padding: 1%;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 3px solid #f1f1f1;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  position: fixed;
+  display: block;
+}
+
+.gameover {
+  left: 40%;
+  width: 20%;
+  top: 40%;
+  height: 20%;
+  margin: 0%;
+  padding: 1%;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 3px solid #f1f1f1;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  position: fixed;
+  display: none;
+}
+
+.gamewin {
+  left: 40%;
+  width: 20%;
+  top: 40%;
+  height: 20%;
+  margin: 0%;
+  padding: 1%;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 3px solid #f1f1f1;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  position: fixed;
+  display: none;
+}
+
+#button2 {
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  font-weight: bold;
+  border: 1px solid #f1f1f1;
+  width: 50%;
+  height: 30%;
+}
+#button2:hover {
+  background-color: rgb(79, 63, 80);
+}
+
+#button {
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  font-weight: bold;
+  border: 1px solid #f1f1f1;
+  width: 50%;
+  height: 10%;
+}
+#button:hover {
+  background-color: rgb(79, 63, 80);
 }
