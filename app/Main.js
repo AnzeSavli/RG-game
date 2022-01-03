@@ -15,6 +15,7 @@ class App extends Application {
     this.healthNode = health;
     this.moneyNode = money;
     this.waveNode = wave;
+    this.audio = new Audio("../common/sounds/cov19.mp3");
 
     Object.assign(this.guiData, {
       mapSelection: 55,
@@ -22,7 +23,17 @@ class App extends Application {
   }
   async start() {
     this.spawned = false;
-    this.waves = [{lvl0:1, lvl1:0, lvl2:0, delay: 500}, {lvl0:2, lvl1:0, lvl2:0, delay: 500}];    
+    this.waves = [
+      { lvl0: 1, lvl1: 0, lvl2: 0, delayMin: 200, delayMax: 2000 },
+      { lvl0: 2, lvl1: 0, lvl2: 0, delayMin: 200, delayMax: 2000 },
+      { lvl0: 4, lvl1: 1, lvl2: 0, delayMin: 200, delayMax: 2000 },
+      { lvl0: 4, lvl1: 2, lvl2: 0, delayMin: 200, delayMax: 2000 },
+      { lvl0: 4, lvl1: 3, lvl2: 1, delayMin: 200, delayMax: 2000 },
+      { lvl0: 2, lvl1: 4, lvl2: 4, delayMin: 200, delayMax: 2000 },
+      { lvl0: 3, lvl1: 5, lvl2: 3, delayMin: 200, delayMax: 2000 },
+      { lvl0: 5, lvl1: 5, lvl2: 5, delayMin: 200, delayMax: 2000 },
+      { lvl0: 5, lvl1: 7, lvl2: 5, delayMin: 200, delayMax: 2000 },
+    ];
     this.pause = true;
     this.loader = new GLTFLoader();
     await this.loader.load("../common/models/textures/untitled.gltf");
@@ -65,7 +76,7 @@ class App extends Application {
 
     this.hp = 3;
     this.money = 100;
-    this.currwave = 0;  	
+    this.currwave = 0;
 
     if (!this.scene || !this.camera) {
       throw new Error("Scene or Camera not present in glTF");
@@ -189,8 +200,7 @@ class App extends Application {
     }
   }
 
-  update() {   
-    
+  update() {
     const t = (this.time = Date.now());
     const dt = (this.time - this.startTime) * 0.001;
     this.startTime = this.time;
@@ -204,23 +214,35 @@ class App extends Application {
       }
 
       if (this.scene.enemies && !this.pause) {
-        if(!this.spawned) {
-          this.spawned = true;     
-          let delay = 0;     
-          for(let i = 0; i < this.waves[this.currwave].lvl0; i++) {
-            delay += this.waves[this.currwave].delay
+        if (!this.spawned) {
+          this.spawned = true;
+          let delay = 0;
+          for (let i = 0; i < this.waves[this.currwave].lvl0; i++) {
+            delay +=
+              Math.random() *
+                (this.waves[this.currwave].delayMax -
+                  this.waves[this.currwave].delayMin) +
+              this.waves[this.currwave].delayMin;
             this.addEnemy(dt, 0, delay);
           }
-          for(let i = 0; i < this.waves[this.currwave].lvl1; i++) {
-            delay += this.waves[this.currwave].delay
+          for (let i = 0; i < this.waves[this.currwave].lvl1; i++) {
+            delay +=
+              Math.random() *
+                (this.waves[this.currwave].delayMax -
+                  this.waves[this.currwave].delayMin) +
+              this.waves[this.currwave].delayMin;
             this.addEnemy(dt, 1, delay);
           }
-          for(let i = 0; i < this.waves[this.currwave].lvl2; i++) {
-            delay += this.waves[this.currwave].delay
+          for (let i = 0; i < this.waves[this.currwave].lvl2; i++) {
+            delay +=
+              Math.random() *
+                (this.waves[this.currwave].delayMax -
+                  this.waves[this.currwave].delayMin) +
+              this.waves[this.currwave].delayMin;
             this.addEnemy(dt, 2, delay);
           }
         }
-        if(this.scene.enemies.length == 0) {
+        if (this.scene.enemies.length == 0) {
           this.pause = true;
           this.currwave++;
           this.spawned = false;
@@ -246,8 +268,7 @@ class App extends Application {
             continue;
           }
           enemy.rotate(dt);
-          if(!this.pause)
-            enemy.moveEnemy(dt, t);
+          if (!this.pause) enemy.moveEnemy(dt, t);
         }
       }
 
@@ -317,8 +338,8 @@ class App extends Application {
   }
   begin() {
     this.pause = false;
+    this.audio.play();
   }
-
 }
 window.onload = function () {
   const canvas = document.querySelector("canvas");
