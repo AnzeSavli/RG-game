@@ -24,24 +24,34 @@ class App extends Application {
   async start() {
     this.spawned = false;
     this.waves = [
-      { lvl0: 2, lvl1: 0, lvl2: 0, delayMin: 200, delayMax: 2000 },
-      { lvl0: 3, lvl1: 0, lvl2: 0, delayMin: 200, delayMax: 2000 },
-      { lvl0: 4, lvl1: 1, lvl2: 0, delayMin: 200, delayMax: 2000 },
-      { lvl0: 4, lvl1: 2, lvl2: 0, delayMin: 200, delayMax: 2000 },
-      { lvl0: 4, lvl1: 3, lvl2: 1, delayMin: 200, delayMax: 2000 },
-      { lvl0: 2, lvl1: 4, lvl2: 4, delayMin: 200, delayMax: 2000 },
-      { lvl0: 3, lvl1: 5, lvl2: 3, delayMin: 200, delayMax: 2000 },
-      { lvl0: 5, lvl1: 5, lvl2: 5, delayMin: 200, delayMax: 2000 },
-      { lvl0: 5, lvl1: 7, lvl2: 5, delayMin: 200, delayMax: 2000 },
-      { lvl0: 10, lvl1: 5, lvl2: 5, delayMin: 200, delayMax: 2000 },
-      { lvl0: 8, lvl1: 8, lvl2: 3, delayMin: 200, delayMax: 2000 },
-      { lvl0: 12, lvl1: 7, lvl2: 4, delayMin: 200, delayMax: 2000 },
-      { lvl0: 15, lvl1: 5, lvl2: 8, delayMin: 200, delayMax: 2000 },
-      { lvl0: 10, lvl1: 2, lvl2: 10, delayMin: 200, delayMax: 2000 },
-      { lvl0: 5, lvl1: 10, lvl2: 10, delayMin: 200, delayMax: 2000 },
-      { lvl0: 10, lvl1: 10, lvl2: 10, delayMin: 200, delayMax: 2000 },
-      { lvl0: 25, lvl1: 0, lvl2: 0, delayMin: 200, delayMax: 2000 },
-      { lvl0: 5, lvl1: 15, lvl2: 10, delayMin: 200, delayMax: 2000 },
+      { lvl0: 2, lvl1: 0, lvl2: 0, delayMin: 500, delayMax: 1000 },
+      { lvl0: 3, lvl1: 0, lvl2: 0, delayMin: 500, delayMax: 1000 },
+      { lvl0: 4, lvl1: 1, lvl2: 0, delayMin: 500, delayMax: 1000 },
+      { lvl0: 4, lvl1: 2, lvl2: 0, delayMin: 500, delayMax: 1000 },
+      { lvl0: 4, lvl1: 3, lvl2: 1, delayMin: 500, delayMax: 1000 },
+      { lvl0: 2, lvl1: 4, lvl2: 4, delayMin: 200, delayMax: 400 },
+      { lvl0: 3, lvl1: 5, lvl2: 3, delayMin: 200, delayMax: 400 },
+      { lvl0: 5, lvl1: 5, lvl2: 5, delayMin: 200, delayMax: 400 },
+      { lvl0: 5, lvl1: 7, lvl2: 5, delayMin: 200, delayMax: 400 },
+      { lvl0: 10, lvl1: 5, lvl2: 5, delayMin: 200, delayMax: 400 },
+      { lvl0: 8, lvl1: 8, lvl2: 3, delayMin: 200, delayMax: 400 },
+      { lvl0: 12, lvl1: 7, lvl2: 4, delayMin: 150, delayMax: 300 },
+      { lvl0: 15, lvl1: 5, lvl2: 8, delayMin: 150, delayMax: 300 },
+      { lvl0: 10, lvl1: 2, lvl2: 10, delayMin: 150, delayMax: 300 },
+      { lvl0: 5, lvl1: 10, lvl2: 10, delayMin: 150, delayMax: 300 },
+      { lvl0: 10, lvl1: 10, lvl2: 10, delayMin: 150, delayMax: 300 },
+      { lvl0: 25, lvl1: 0, lvl2: 0, delayMin: 150, delayMax: 300 },
+      { lvl0: 5, lvl1: 15, lvl2: 10, delayMin: 150, delayMax: 300 },
+      { lvl0: 5, lvl1: 15, lvl2: 15, delayMin: 150, delayMax: 300 },
+      { lvl0: 5, lvl1: 15, lvl2: 20, delayMin: 150, delayMax: 300 },
+      { lvl0: 5, lvl1: 15, lvl2: 30, delayMin: 150, delayMax: 300 },
+      { lvl0: 5, lvl1: 15, lvl2: 40, delayMin: 150, delayMax: 300 },
+      { lvl0: 5, lvl1: 15, lvl2: 50, delayMin: 150, delayMax: 300 },
+      { lvl0: 100, lvl1: 15, lvl2: 20, delayMin: 50, delayMax: 100 },
+      { lvl0: 150, lvl1: 15, lvl2: 20, delayMin: 50, delayMax: 100 },
+      { lvl0: 0, lvl1: 50, lvl2: 20, delayMin: 200, delayMax: 300 },
+      { lvl0: 0, lvl1: 0, lvl2: 30, delayMin: 200, delayMax: 300 },
+      { lvl0: 0, lvl1: 20, lvl2: 30, delayMin: 200, delayMax: 300 },
     ];
     this.pause = true;
     this.loader = new GLTFLoader();
@@ -84,7 +94,7 @@ class App extends Application {
     this.camera = await this.loader.loadNode("Camera");
 
     this.hp = 3;
-    this.money = 100;
+    this.money = 5000;
     this.currwave = 0;
 
     if (!this.scene || !this.camera) {
@@ -124,8 +134,8 @@ class App extends Application {
     this.scene.enemies.push(enemy);
   }
 
-  addTurret(loc = 2, trans, id) {
-    let turret = new Turret(trans, id, this.turrets, loc, this.bullets);
+  addTurret(loc = 2, trans, id, firerate) {
+    let turret = new Turret(trans, id, this.turrets, loc, this.bullets, firerate);
     this.scene.turrets.push(turret);
     console.log(turret);
   }
@@ -150,24 +160,24 @@ class App extends Application {
         this.money -= 25;
       } else if (
         this.mapMatrix[this.guiData["mapSelection"]] == 0 &&
-        this.money >= 30
+        this.money >= 40
       ) {
         for (let i = 0; i < this.scene.turrets.length; i++) {
           if (this.scene.turrets[i].id == this.guiData["mapSelection"]) {
             this.scene.turrets[i].upgradeTurret();
             this.mapMatrix[this.guiData["mapSelection"]]++;
-            this.money -= 30;
+            this.money -= 40;
           }
         }
       } else if (
         this.mapMatrix[this.guiData["mapSelection"]] == 1 &&
-        this.money >= 45
+        this.money >= 60
       ) {
         for (let i = 0; i < this.scene.turrets.length; i++) {
           if (this.scene.turrets[i].id == this.guiData["mapSelection"]) {
             this.scene.turrets[i].upgradeTurret();
             this.mapMatrix[this.guiData["mapSelection"]]++;
-            this.money -= 45;
+            this.money -= 60;
           }
         }
       }
@@ -264,7 +274,7 @@ class App extends Application {
               this.hp--;
             }
             if (enemy.dead()) {
-              this.money += 10;
+              this.money += 1;
               let sound = new Audio("../common/sounds/deadvirus.mp3");
               sound.play();
             }

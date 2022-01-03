@@ -12,7 +12,7 @@ export class Turret extends Node {
     this.scale = turret[loc].scale;
     this.mesh = turret[loc].mesh;
     this.translation = options;
-    this.firerate = 1000;
+    this.firerate = 250;
     this.target;
     this.timeFromLastFire = 0;
     this.updateMatrix();
@@ -113,13 +113,14 @@ export class Turret extends Node {
     if (this.loc == 0) {
       this.scale = this.turrets[this.loc + 1].scale;
       this.mesh = this.turrets[this.loc + 1].mesh;
-      this.firerate = 700;
+      this.firerate = 400;
       this.loc++;
     } else if (this.loc == 1) {
       this.scale = this.turrets[this.loc + 1].scale;
       this.mesh = this.turrets[this.loc + 1].mesh;
-      this.firerate = 400;
+      this.firerate = 600;
       this.loc++;
     }
+    this.updateMatrix();
   }
 }

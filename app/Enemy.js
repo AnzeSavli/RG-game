@@ -28,23 +28,16 @@ export class Enemy extends Node {
     this.updateMatrix();
   }
 
-  hit() {
-    this.enemyLvlDown();
-  }
   rotate(dt) {
     quat.rotateY(this.rotation, this.rotation, this.rotateSpeedY * dt);
     quat.rotateX(this.rotation, this.rotation, this.rotateSpeedX * dt);
     this.updateMatrix();
   }
 
-  moveEnemy(dt, time) {
-    if (this.currWaypoint == 0) {
-      this.speed = 1100;
-    } else {
-      this.speed = 300;
-    }
+  moveEnemy(dt, time) {    
     if (!this.move) {
       if (time - this.time > this.delay) {
+        this.translation = Object.create(this.wp[1].translation);
         this.move = true;
       } else {
         return;
@@ -77,24 +70,43 @@ export class Enemy extends Node {
     }
   }
   dead() {
-    return this.health < 0;
+    return this.health <= 0;
   }
-  enemyLvlDown() {
+
+  enemyLvlDown(bullet_loc) {
+    let damageMultiplier;
+    if(bullet_loc == 0) {
+      damageMultiplier = 1;
+    }
+    else if(bullet_loc == 1) {
+      damageMultiplier = 2;
+    }
+    else {
+      damageMultiplier = 4;
+    }    
+    
+    this.health -= 25 * damageMultiplier;
+
+    console.log(this.health);
     if (this.health > 200) {
-      this.health -= 25;
-    } else if (this.health <= 200 && this.health > 100) {
+      this.loc = 2;
+      this.scale = this.enemy[this.loc].scale;
+      this.mesh = this.enemy[this.loc].mesh;
+    }
+    else if (this.health <= 200 && this.health > 100) {
       this.loc = 1;
       this.scale = this.enemy[this.loc].scale;
       this.mesh = this.enemy[this.loc].mesh;
-      this.health -= 20;
-    } else if (this.health <= 100 && this.health > 0) {
+    }
+    else if (this.health <= 100 && this.health > 0) {
       this.loc = 0;
       this.scale = this.enemy[this.loc].scale;
       this.mesh = this.enemy[this.loc].mesh;
-      this.health -= 15;
-    } else {
-      this.health = -100;
     }
+    else {
+      this.health = -1;
+    }
+
   }
 
   reachedEnd() {
