@@ -94,7 +94,7 @@ class App extends Application {
     this.camera = await this.loader.loadNode("Camera");
 
     this.hp = 3;
-    this.money = 5000;
+    this.money = 100;
     this.currwave = 0;
 
     if (!this.scene || !this.camera) {
